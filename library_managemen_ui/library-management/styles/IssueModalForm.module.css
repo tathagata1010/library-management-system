@@ -1,0 +1,41 @@
+.modal {
+  background-color: rgb(231, 229, 229);
+  border-radius: 5px;
+  max-width: 500px;
+  margin: auto;
+  padding: 20px;
+  margin-top: 5rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.formHeading {
+  text-align: center;
+}
+
+.form label {
+  margin-bottom: 10px;
+}
+
+.form input {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 8px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.form button {
+  background-color: #0070f3;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 10px 20px;
+  margin-top: 20px;
+}
