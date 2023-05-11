@@ -3,6 +3,7 @@ package com.dev.library_management.service;
 import com.dev.library_management.dao.BookDao;
 import com.dev.library_management.entity.Book;
 import com.dev.library_management.exception.BookNotFoundException;
+import com.dev.library_management.utility.Constants;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class BookService {
 
     public Book getBookById(Long id) throws BookNotFoundException {
         return bookDao.findById(id)
-                .orElseThrow(() -> new BookNotFoundException("Book not found with id " + id));
+                .orElseThrow(() -> new BookNotFoundException(Constants.BOOK_NOT_FOUND + id));
     }
 
     public Book getBookByName(String name) throws BookNotFoundException {
@@ -32,7 +33,7 @@ public class BookService {
         if (book!=null) {
             return book;
         } else {
-            throw new BookNotFoundException("Book not found with name " + name);
+            throw new BookNotFoundException(Constants.BOOK_NOT_FOUND_NAME + name);
         }
     }
 
@@ -42,7 +43,7 @@ public class BookService {
 
     public Book updateBook(Long id, Book bookDetails) throws BookNotFoundException {
         Book book = bookDao.findById(id)
-                .orElseThrow(() -> new BookNotFoundException("Book not found with id " + id));
+                .orElseThrow(() -> new BookNotFoundException(Constants.BOOK_NOT_FOUND + id));
 
         book.setName(bookDetails.getName());
         book.setAuthor(bookDetails.getAuthor());
@@ -54,7 +55,7 @@ public class BookService {
 
     public void deleteBook(Long id) throws BookNotFoundException {
         Book book = bookDao.findById(id)
-                .orElseThrow(() -> new BookNotFoundException("Book not found with id " + id));
+                .orElseThrow(() -> new BookNotFoundException(Constants.BOOK_NOT_FOUND + id));
 
         bookDao.delete(book);
     }

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -36,7 +36,7 @@ public class BookControllerTest {
 
     @BeforeEach
     public void setUp() {
-        bookDao = Mockito.mock(BookDao.class);
+        MockitoAnnotations.openMocks(this);
         bookService = new BookService(bookDao);
         book = new Book();
         bookController = new BookController(bookService);
@@ -90,15 +90,12 @@ public class BookControllerTest {
 
     @Test
     void testDeleteBook() {
-        // mock the service method
         when(bookDao.findById(anyLong())).thenReturn(Optional.ofNullable(book));
         doNothing().when(bookDao).delete(any());
 
 
-        // call the controller method
         ResponseEntity<Void> responseEntity = bookController.deleteBook(10000L);
 
-        // assert the response
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(responseEntity.getBody()).isNull();
 

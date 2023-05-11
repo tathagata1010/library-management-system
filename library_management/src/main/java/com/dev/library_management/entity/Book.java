@@ -29,6 +29,14 @@ public class Book {
     public Book() {
     }
 
+    public Book(Long id, String name, String author, String category, String isbn) {
+        this.id = id;
+        this.name = name;
+        this.author = author;
+        this.category = category;
+        this.isbn = isbn;
+    }
+
     // Getters and setters for all fields
     public Long getId() {
         return id;

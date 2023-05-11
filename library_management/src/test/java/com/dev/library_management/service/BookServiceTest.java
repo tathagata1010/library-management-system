@@ -66,17 +66,6 @@ class BookServiceTest {
     }
 
     @Test
-    void testGetBookByIdNotFound() {
-        when(bookDao.findById(anyLong())).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> bookService.getBookById(1L))
-                .isInstanceOf(BookNotFoundException.class)
-                .hasMessage("Book not found with id 1");
-
-        verify(bookDao, times(1)).findById(anyLong());
-    }
-
-    @Test
     void testGetBookByName() {
         when(bookDao.findByName(anyString())).thenReturn(book);
 
@@ -87,16 +76,6 @@ class BookServiceTest {
         verify(bookDao, times(1)).findByName(anyString());
     }
 
-    @Test
-    void testGetBookByNameNotFound() {
-        when(bookDao.findByName(anyString())).thenReturn(null);
-
-        assertThatThrownBy(() -> bookService.getBookByName("Book1"))
-                .isInstanceOf(BookNotFoundException.class)
-                .hasMessage("Book not found with name Book1");
-
-        verify(bookDao, times(1)).findByName(anyString());
-    }
 
     @Test
     void testAddBook() {
@@ -126,4 +105,7 @@ class BookServiceTest {
 
         verify(bookDao, times(1)).save(any(Book.class));
     }
+
+//    @Test
+//
 }

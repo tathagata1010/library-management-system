@@ -1,7 +1,8 @@
 package com.dev.library_management.controller;
 
 import com.dev.library_management.entity.BorrowedBooks;
-import com.dev.library_management.exception.BookReportNotFoundException;
+import com.dev.library_management.entity.Borrower;
+import com.dev.library_management.exception.BorrowedNotFoundException;
 import com.dev.library_management.model.BookBorrowRequest;
 import com.dev.library_management.model.BookBorrowResponse;
 import com.dev.library_management.model.UpdateBookBorrowRequest;
@@ -17,10 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/library/borrowed")
@@ -76,8 +74,8 @@ public class BorrowedBooksController {
             @ApiResponse(responseCode = "404", description = "No books found", content = @Content),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
-    public ResponseEntity<List<Map<String, Object>>> getAllBookReports() {
-        List<Map<String, Object>> bookReports = borrowedBooksService.getAllBookReports();
+    public ResponseEntity<List<BookBorrowResponse>> getAllBookReports() {
+        List<BookBorrowResponse> bookReports = borrowedBooksService.getAllBookReports();
         return ResponseEntity.ok().body(bookReports);
     }
 
@@ -106,7 +104,7 @@ public class BorrowedBooksController {
             @ApiResponse(responseCode = "404", description = "Book not found", content = @Content),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
-    public ResponseEntity<BookBorrowResponse> getBookReportById(@PathVariable Long id) throws BookReportNotFoundException {
+    public ResponseEntity<BookBorrowResponse> getBookReportById(@PathVariable Long id) throws BorrowedNotFoundException {
         BookBorrowResponse bookReport = borrowedBooksService.getBookReportById(id);
         return ResponseEntity.ok().body(bookReport);
     }
@@ -146,7 +144,7 @@ public class BorrowedBooksController {
     @Tag(name = "Borrowed Controller")
     @Operation(summary = "update book details by Id")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Return the updated book object",
+            @ApiResponse(responseCode = "201", description = "Return the updated book object",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = BookBorrowResponse.class),
                             examples = @ExampleObject(
@@ -164,9 +162,9 @@ public class BorrowedBooksController {
             @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
-    public ResponseEntity<BookBorrowResponse> updateBookReport(@PathVariable Long id,@RequestBody UpdateBookBorrowRequest updateBookBorrowRequest) throws BookReportNotFoundException {
+    public ResponseEntity<BookBorrowResponse> updateBookReport(@PathVariable Long id,@RequestBody UpdateBookBorrowRequest updateBookBorrowRequest) throws BorrowedNotFoundException {
+        System.out.println(updateBookBorrowRequest.toString());
         BookBorrowResponse updatedBookReport = borrowedBooksService.updateBookReport(id, updateBookBorrowRequest);
-        System.out.println(updateBookBorrowRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(updatedBookReport);
     }
 
@@ -178,8 +176,14 @@ public class BorrowedBooksController {
             @ApiResponse(responseCode = "404", description = "Book not found", content = @Content),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
-    public ResponseEntity<Void> deleteBookReport(@PathVariable Long id) throws BookReportNotFoundException {
+    public ResponseEntity<Void> deleteBookReport(@PathVariable Long id) throws BorrowedNotFoundException {
         borrowedBooksService.deleteBookReport(id);
         return ResponseEntity.noContent().build();
     }
+
+//    @GetMapping("books/{bookId}/borrowers")
+//    public List<Borrower> getBorrowersForBook(@PathVariable Long bookId) {
+//        return borrowedBooksService.getBorrowersByBookId(bookId);
+//    }
+
 }

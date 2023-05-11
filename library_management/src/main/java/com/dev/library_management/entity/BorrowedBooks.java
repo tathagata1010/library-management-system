@@ -16,7 +16,7 @@ public class BorrowedBooks {
     private Book book;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "borrower_id", referencedColumnName = "id")
+    @JoinColumn(name = "borrower_id", referencedColumnName = "id", nullable = false)
     private Borrower borrower;
 
     @Column(name = "issue_date")
@@ -24,6 +24,9 @@ public class BorrowedBooks {
 
     @Column(name = "return_date")
     private LocalDate returnDate;
+
+    @Column(name = "is_lost")
+    private Boolean isLost;
 
     // getters and setters
 
@@ -68,16 +71,26 @@ public class BorrowedBooks {
         this.returnDate = returnDate;
     }
 
+    public Boolean getLost() {
+        return isLost;
+    }
+
+    public void setLost(Boolean lost) {
+        isLost = lost;
+    }
+
     // constructor
     public BorrowedBooks() {
     }
 
-    public BorrowedBooks(Long id, Book book, Borrower borrower, LocalDate issueDate, LocalDate returnDate) {
+
+    public BorrowedBooks(Long id, Book book, Borrower borrower, LocalDate issueDate, LocalDate returnDate, Boolean isLost) {
         this.id = id;
         this.book = book;
         this.borrower = borrower;
         this.issueDate = issueDate;
         this.returnDate = returnDate;
+        this.isLost = isLost;
     }
 
     @Override
@@ -88,6 +101,7 @@ public class BorrowedBooks {
                 ", borrower=" + borrower +
                 ", issueDate=" + issueDate +
                 ", returnDate=" + returnDate +
+                ", isLost=" + isLost +
                 '}';
     }
 }
