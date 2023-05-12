@@ -64,39 +64,35 @@ public class BorrowedBooksService {
 
     public BookBorrowResponse addBookReport(BookBorrowRequest bookBorrowRequest) {
         BorrowedBooks borrowedBooks = new BorrowedBooks();
-        bookService = new BookService(bookDao);
-        Book book= bookService.getBookById(bookBorrowRequest.getBookId());
-        borrowedBooks.setBook(book);
-        Borrower borrower=borrowerDao.findByName(bookBorrowRequest.getBorrowerName());
-        BookBorrowResponse bookBorrowResponse =new BookBorrowResponse();
-        if(borrower==null)
-        {
-            Borrower borrower1=new Borrower();
-            borrower1.setName(bookBorrowRequest.getBorrowerName());
-            borrower1.setPhoneNumber(bookBorrowRequest.getBorrowerPhone());
-            borrower1.getBooks().add(book);
-            borrowerDao.save(borrower1);
-            bookBorrowResponse.setBorrowerName(borrower1.getName());
-            bookBorrowResponse.setBorrowerPhone(borrower1.getPhoneNumber());
-            borrowedBooks.setBorrower(borrower1);
-        }
-        else {
+        Book book = bookService.getBookById(bookBorrowRequest.getBookId());
+        Borrower borrower = borrowerDao.findByName(bookBorrowRequest.getBorrowerName());
+        if (borrower == null) {
+            borrower = new Borrower();
+            borrower.setName(bookBorrowRequest.getBorrowerName());
+            borrower.setPhoneNumber(bookBorrowRequest.getBorrowerPhone());
             borrower.getBooks().add(book);
             borrowerDao.save(borrower);
-            bookBorrowResponse.setBorrowerName(borrower.getName());
-            bookBorrowResponse.setBorrowerPhone(borrower.getPhoneNumber());
-            borrowedBooks.setBorrower(borrower);
+        } else {
+            borrower.getBooks().add(book);
+            borrowerDao.save(borrower);
         }
+        borrowedBooks.setBook(book);
+        borrowedBooks.setBorrower(borrower);
         borrowedBooks.setIssueDate(bookBorrowRequest.getIssueDate());
         borrowedBooks.setReturnDate(bookBorrowRequest.getReturnDate());
         borrowedBooks.setLost(false);
         BorrowedBooks addedBorrowedBooks = borrowedBooksDao.save(borrowedBooks);
+        BookBorrowResponse bookBorrowResponse = new BookBorrowResponse();
         bookBorrowResponse.setId(addedBorrowedBooks.getId());
         bookBorrowResponse.setBookName(book.getName());
+        bookBorrowResponse.setBorrowerName(borrower.getName());
+        bookBorrowResponse.setBorrowerPhone(borrower.getPhoneNumber());
         bookBorrowResponse.setReturnDate(addedBorrowedBooks.getReturnDate());
         bookBorrowResponse.setIssueDate(addedBorrowedBooks.getIssueDate());
+        bookBorrowResponse.setLost(addedBorrowedBooks.getLost());
         return bookBorrowResponse;
     }
+
 
     public BookBorrowResponse updateBookReport(Long id, UpdateBookBorrowRequest updateBookBorrowRequest) throws BorrowedNotFoundException {
         Optional<BorrowedBooks> existingBookReport = borrowedBooksDao.findById(id);

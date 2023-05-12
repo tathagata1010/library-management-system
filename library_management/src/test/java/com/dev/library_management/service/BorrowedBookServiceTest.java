@@ -65,7 +65,7 @@ public class BorrowedBookServiceTest {
         bookBorrowResponse.setBorrowerPhone("123456789");
         bookBorrowResponse.setIssueDate(LocalDate.now());
         bookBorrowResponse.setReturnDate(LocalDate.now());
-        book = new Book(1L, "BOOK1", "AUTHOR", "CATEGORY1", "110001");
+        book = new Book(1L, "BOOK1", "AUTHOR", "CATEGORY1", "110001",0);
         borrower = new Borrower("BORROWER1", "123456789");
         borrowedBooks = new BorrowedBooks();
         borrowedBooks.setBook(book);
@@ -82,11 +82,11 @@ public class BorrowedBookServiceTest {
         List<BorrowedBooks> borrowedBooksList = new ArrayList<>();
         borrowedBooksList.add(borrowedBooks);
         BookBorrowResponse expectedResponse = new BookBorrowResponse();
-        expectedResponse.setIssueDate(LocalDate.of(2023, 5, 10));
+        expectedResponse.setIssueDate(LocalDate.now());
         expectedResponse.setBorrowerName("BORROWER1");
         expectedResponse.setBorrowerPhone("123456789");
         expectedResponse.setBookName("BOOK1");
-        expectedResponse.setReturnDate(LocalDate.of(2023, 5, 10));
+        expectedResponse.setReturnDate(LocalDate.now());
         doReturn(borrowedBooksList).when(borrowedBooksDao).findAll();
         List<BookBorrowResponse> responses = borrowedBooksService.getAllBookReports();
         assertThat(responses).isNotEmpty();

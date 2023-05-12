@@ -19,7 +19,7 @@ public class BookService {
     }
 
     public List<Book> getAllBooks() {
-        return bookDao.findAll();
+        return bookDao.findAllByIsDeleted(0);
     }
 
     public Book getBookById(Long id) throws BookNotFoundException {
@@ -38,8 +38,16 @@ public class BookService {
     }
 
     public Book addBook(Book book) {
+        // Check if the book already exists based on its ISBN
+        Book existingBook = bookDao.findByIsbn(book.getIsbn());
+        if (existingBook != null) {
+            return existingBook;
+        }
+
+        // If the book doesn't exist, save the new book
         return bookDao.save(book);
     }
+
 
     public Book updateBook(Long id, Book bookDetails) throws BookNotFoundException {
         Book book = bookDao.findById(id)
@@ -57,7 +65,13 @@ public class BookService {
         Book book = bookDao.findById(id)
                 .orElseThrow(() -> new BookNotFoundException(Constants.BOOK_NOT_FOUND + id));
 
-        bookDao.delete(book);
+        if (book.getIsDeleted() == 1) {
+            return;
+        }
+
+        book.setIsDeleted(1);
+        bookDao.save(book);
     }
+
 }
 

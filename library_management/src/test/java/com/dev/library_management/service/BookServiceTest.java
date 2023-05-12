@@ -38,6 +38,7 @@ class BookServiceTest {
         book.setAuthor("Author1");
         book.setIsbn("1234567890");
         book.setCategory("Category1");
+        book.setIsDeleted(0);
     }
 
     @Test
@@ -45,13 +46,12 @@ class BookServiceTest {
         List<Book> bookList = new ArrayList<>();
         bookList.add(book);
 
-        when(bookDao.findAll()).thenReturn(bookList);
+        when(bookDao.findAllByIsDeleted(anyInt())).thenReturn(bookList);
 
         List<Book> result = bookService.getAllBooks();
-
         assertThat(result).isNotEmpty().containsOnly(book);
 
-        verify(bookDao, times(1)).findAll();
+        verify(bookDao, times(1)).findAllByIsDeleted(0);
     }
 
     @Test
@@ -95,6 +95,7 @@ class BookServiceTest {
         bookDetails.setAuthor("NewAuthor1");
         bookDetails.setIsbn("0987654321");
         bookDetails.setCategory("NewCategory1");
+        bookDetails.setIsDeleted(0);
 
         when(bookDao.findById(anyLong())).thenReturn(Optional.of(book));
         when(bookDao.save(any(Book.class))).thenReturn(book);
@@ -106,6 +107,14 @@ class BookServiceTest {
         verify(bookDao, times(1)).save(any(Book.class));
     }
 
-//    @Test
-//
+    @Test
+    void testDeleteBook(){
+        when(bookDao.findById(anyLong())).thenReturn(Optional.of(book));
+
+        when(bookDao.save(any(Book.class))).thenReturn(book);
+
+        bookService.deleteBook(1L);
+        verify(bookDao, times(1)).save(any(Book.class));
+    }
+
 }

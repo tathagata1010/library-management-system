@@ -1,5 +1,6 @@
 package com.dev.library_management.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
@@ -25,16 +26,22 @@ public class Book {
     @Column(nullable = false, unique = true)
     private String isbn;
 
+
+    @Column(nullable = false)
+    @JsonIgnore
+    private Integer isDeleted=0;
+
     // Constructor
     public Book() {
     }
 
-    public Book(Long id, String name, String author, String category, String isbn) {
+    public Book(Long id, String name, String author, String category, String isbn, int isDeleted) {
         this.id = id;
         this.name = name;
         this.author = author;
         this.category = category;
         this.isbn = isbn;
+        this.isDeleted = isDeleted;
     }
 
     // Getters and setters for all fields
@@ -78,6 +85,14 @@ public class Book {
         this.category = category;
     }
 
+    public int getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(int isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
     @Override
     public String toString() {
         return "Book{" +
@@ -86,7 +101,9 @@ public class Book {
                 ", author='" + author + '\'' +
                 ", category='" + category + '\'' +
                 ", isbn='" + isbn + '\'' +
+                ", isDeleted=" + isDeleted +
                 '}';
     }
+
 }
 

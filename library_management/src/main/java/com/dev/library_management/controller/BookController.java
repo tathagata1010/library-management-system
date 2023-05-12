@@ -95,7 +95,7 @@ public class BookController {
 //    }
 
 
-    @GetMapping("/{name}")
+    @GetMapping("/name")
     @Tag(name = "Books Controller")
     @Operation(summary = "Get book by Name")
     @ApiResponses(value = {
@@ -119,8 +119,7 @@ public class BookController {
             @ApiResponse(responseCode = "404", description = "Book not found", content = @Content),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
-    public ResponseEntity<Book> getBookByName(@PathVariable String name) {
-
+    public ResponseEntity<Book> getBookByName(@RequestParam(name = "name", defaultValue = "Mordern Physics") String name) {
         Book book= bookService.getBookByName(name);
         return new ResponseEntity<>(book, HttpStatus.OK);
     }

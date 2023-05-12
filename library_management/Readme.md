@@ -26,7 +26,7 @@ The following endpoints are available in the backend:
 
 - `GET /library/books` - get all books
 - `GET /library/books/{id}` - get a book by id
-- `GET /library/books/name/{name}` - get a book by name
+- `GET /library/books/name?name={name}` - get a book by name
 - `POST /library/books` - add a new book
 - `PUT /library/books/{id}` - update a book by id
 - `DELETE /library/books/{id}` - delete a book by id
