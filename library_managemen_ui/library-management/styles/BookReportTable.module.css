@@ -33,9 +33,9 @@
 }
 
 .actionButtonDisabled {
-  background-color: #88b7ec;
+  background-color: #b1d0f3;
   border: none;
-  color: rgb(13, 112, 218);
+  color: rgb(87, 144, 204);
   padding: 0.5rem 1rem;
   border-radius: 4px;
   margin: 0.5rem;
@@ -122,3 +122,64 @@
 
 
 
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropbtn {
+  background-color: #0070f3;
+  border: none;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin: 0.5rem;
+  cursor: pointer;
+}
+
+.dropdownContent {
+  display: none;
+  position: absolute;
+  z-index: 1;
+  top: 100%;
+  left: 0;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  padding: 12px 16px;
+}
+
+.dropdown.open .dropdownContent {
+  display: block;
+}
+
+.dropdownOption {
+  display: block;
+  padding: 12px;
+  background-color: #f1f1f1;
+  color: black;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+
+.dropdownOption:hover {
+  background-color: #ddd;
+}
+
+.dropdownButton {
+  background-color: white;
+  color: black;
+  border: none;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+  width: 100%;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.dropdownButton:hover {
+  background-color: #f1f1f1;
+}

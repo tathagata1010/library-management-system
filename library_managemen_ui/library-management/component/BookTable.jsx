@@ -82,19 +82,29 @@ const BookTable = () => {
   };
 
   const handleSearch = () => {
-    myAxios
-      .get(`/books/${searchQuery}`)
-      .then((response) => {
-        if (Array.isArray(response.data)) {
-          setBooks(response.data);
-        } else {
-          setBooks([response.data]);
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    if (searchQuery.trim() === "") {
+      // search query is empty, fetch original list
+      myAxios
+        .get("/books")
+        .then((response) => setBooks(response.data))
+        .catch((error) => console.log(error));
+    } else {
+      // search query is not empty, fetch filtered list
+      myAxios
+        .get(`/books/name?name=${searchQuery}`)
+        .then((response) => {
+          if (Array.isArray(response.data)) {
+            setBooks(response.data);
+          } else {
+            setBooks([response.data]);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
   };
+
 
   const handleCloseModal = () => {
     setShowModal(false);
@@ -108,6 +118,21 @@ const BookTable = () => {
     // reset the editBook state when the modal is closed
     setEditBook(null);
   };
+
+  const handleView = async (book) => {
+    try {
+      const response = await myAxios.get(
+        `/borrowed/books/${book.id}/borrowers`
+      );
+      const borrowers = response.data;
+      // display borrowers list in modal or new page
+      console.log(borrowers);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+
 
   const handleIssueFormSubmit = (event) => {
     event.preventDefault();
@@ -206,8 +231,8 @@ const BookTable = () => {
             placeholder="Search by book name"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyUp={handleSearch}
           />
-          <button onClick={handleSearch}>Search</button>
         </div>
       </div>
       <table className={styles.table}>
@@ -230,6 +255,12 @@ const BookTable = () => {
               <td className={styles.tableData}>{book.author}</td>
               <td className={styles.tableData}>{book.category}</td>
               <td className={styles.actions}>
+                {/* <button
+                  className={styles.actionButton}
+                  onClick={() => handleView(book)}
+                >
+                  View
+                </button> */}
                 <button
                   className={styles.actionButton}
                   onClick={() => handleEdit(book)}
@@ -315,7 +346,7 @@ const BookTable = () => {
       ;
       {isIssue && (
         <div>
-           <IssueBookModal
+          <IssueBookModal
             isOpen={isIssue}
             onClose={closeIssueModal}
             onSubmit={handleIssueFormSubmit}

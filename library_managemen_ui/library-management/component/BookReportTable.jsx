@@ -2,12 +2,17 @@ import { useEffect, useState } from "react";
 import styles from "../styles/BookReportTable.module.css";
 import { myAxios } from "../lib/create-axios";
 import Modal from "react-modal";
-import { Dropdown,Button } from "@nextui-org/react";
+// import { Dropdown,Button } from "@nextui-org/react";
+// import "bootstrap/dist/css/bootstrap.min.css";
+import Button from "react-bootstrap/Button";
+import ButtonGroup from "react-bootstrap/ButtonGroup";
+import Dropdown from "react-bootstrap/Dropdown";
 
 const BookReportTable = () => {
   const [bookReports, setBookReports] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [formData, setFormData] = useState({
     returnDate: "",
   });
@@ -26,13 +31,27 @@ const BookReportTable = () => {
 
   const handleLost = (id) => {
     console.log(id);
-    setBookReports((prevReports) =>
-      prevReports.map((report) =>
-        report.id === id
-          ? { ...report, returnDate: null, isLost: true }
-          : report
-      )
-    );
+    const requestBody = {
+      lost: true,
+      returnDate: null,
+    };
+
+    myAxios
+      .put(`/borrowed/${id}`, requestBody)
+      .then((response) => {
+        setBookReports((prevReports) =>
+          prevReports.map((report) =>
+            report.id === response.data.id ? response.data : report
+          )
+        );
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
   };
 
   const onChange = (e) => {
@@ -52,12 +71,15 @@ const BookReportTable = () => {
     const { returnDate } = formData;
     const isoDate = new Date(returnDate).toISOString();
     myAxios
-      .put(`/borrowed/${selectedReport.id}`, { returnDate: isoDate })
+      .put(`/borrowed/${selectedReport.id}`, {
+        returnDate: isoDate,
+        isLost: false,
+      })
       .then((response) => {
         setBookReports((prevReports) =>
           prevReports.map((report) =>
             report.id === selectedReport.id
-              ? { ...report, returnDate, isLost: false }
+              ? { ...report, returnDate, lost: false }
               : report
           )
         );
@@ -68,7 +90,6 @@ const BookReportTable = () => {
         console.log(error);
       });
   };
-
 
   return (
     <div>
@@ -92,7 +113,7 @@ const BookReportTable = () => {
               <td className={styles.tableData}>{bookReport.borrowerPhone}</td>
               <td className={styles.tableData}>{bookReport.bookName}</td>
               <td className={styles.tableData}>
-                {bookReport.isLost
+                {bookReport.lost
                   ? "Lost"
                   : bookReport.returnDate == null
                   ? "Issued"
@@ -102,36 +123,37 @@ const BookReportTable = () => {
               <td className={styles.actions}>
                 {bookReport.returnDate == null ? (
                   <div>
-                    <Dropdown>
-                      <Dropdown.Button>Update Status</Dropdown.Button>
-                      <Dropdown.Menu>
-                        <Dropdown.Item childTag="button">
-                          <button
-                            onClick={() => {
-                              setSelectedReport(bookReport);
-                              setShowModal(true);
-                            }}
-                          >
-                            Return
-                          </button>
-                        </Dropdown.Item>
-                        <Dropdown.Item childTag="button">
-                          <button onClick={() => handleLost(bookReport.id)}>
-                            Lost
-                          </button>
-                        </Dropdown.Item>
-                      </Dropdown.Menu>
-                    </Dropdown>
+                    <div
+                      className={`${styles.dropdown} ${
+                        dropdownOpen ? styles.open : ""
+                      }`}
+                    >
+                      <button class={styles.dropbtn}>Update Status</button>
+                      <div class={styles.dropdownContent}>
+                        <button
+                          class={styles.dropdownButton}
+                          onClick={() => {
+                            setSelectedReport(bookReport);
+                            setShowModal(true);
+                          }}
+                        >
+                          Return
+                        </button>
+                        <button
+                          class={styles.dropdownButton}
+                          onClick={() => handleLost(bookReport.id)}
+                        >
+                          Lost
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 ) : (
-                  <Dropdown>
-                    <Dropdown.Button
-                      disabled
-                      className={styles.actionButtonDisabled}
-                    >
+                  <div class={styles.dropdown}>
+                    <button class={styles.actionButtonDisabled}>
                       Update Status
-                    </Dropdown.Button>
-                  </Dropdown>
+                    </button>
+                  </div>
                 )}
               </td>
             </tr>

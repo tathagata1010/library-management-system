@@ -21,6 +21,7 @@
   padding: 0 10px;
    width: fit-content;
    margin-left: 45%;
+   color: black;
 }
 
 .buttonAndSearchContainer {
@@ -34,6 +35,7 @@
   border: none;
   outline: none;
   background-color: white;
+  color:black;
 }
 
 .searchBar button {
