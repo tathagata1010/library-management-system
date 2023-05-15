@@ -7,9 +7,15 @@ import java.util.List;
 
 public interface BookDao extends JpaRepository<Book, Long> {
 
-    public Book findByName(String name);
+    public Book findByNameAndIsDeleted(String name, Integer isDeleted);
+
+    public Book findByIsbnAndIsDeleted(String isbn, Integer isDeleted);
 
     public List<Book> findAllByIsDeleted(Integer isDeleted);
 
-    Book findByIsbn(String isbn);
+    public default List<Book> findAll() {
+        return findAllByIsDeleted(0);
+    }
+
+
 }

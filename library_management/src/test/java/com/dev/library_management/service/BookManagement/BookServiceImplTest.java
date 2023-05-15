@@ -1,7 +1,7 @@
-package com.dev.library_management.service;
+package com.dev.library_management.service.BookManagement;
 import com.dev.library_management.dao.BookDao;
 import com.dev.library_management.entity.Book;
-import com.dev.library_management.exception.BookNotFoundException;
+import com.dev.library_management.service.BookManagement.implementation.BookServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -18,13 +18,13 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-class BookServiceTest {
+class BookServiceImplTest {
 
     @Mock
     private BookDao bookDao;
 
     @InjectMocks
-    private BookService bookService;
+    private BookServiceImpl bookServiceImpl;
 
     private Book book;
 
@@ -46,19 +46,19 @@ class BookServiceTest {
         List<Book> bookList = new ArrayList<>();
         bookList.add(book);
 
-        when(bookDao.findAllByIsDeleted(anyInt())).thenReturn(bookList);
+        when(bookDao.findAll()).thenReturn(bookList);
 
-        List<Book> result = bookService.getAllBooks();
+        List<Book> result = bookServiceImpl.getAllBooks();
         assertThat(result).isNotEmpty().containsOnly(book);
 
-        verify(bookDao, times(1)).findAllByIsDeleted(0);
+        verify(bookDao, times(1)).findAll();
     }
 
     @Test
     void testGetBookById() {
         when(bookDao.findById(anyLong())).thenReturn(Optional.of(book));
 
-        Book result = bookService.getBookById(1L);
+        Book result = bookServiceImpl.getBookById(1L);
 
         assertThat(result).isNotNull().isEqualTo(book);
 
@@ -67,13 +67,13 @@ class BookServiceTest {
 
     @Test
     void testGetBookByName() {
-        when(bookDao.findByName(anyString())).thenReturn(book);
+        when(bookDao.findByNameAndIsDeleted(anyString(),anyInt())).thenReturn(book);
 
-        Book result = bookService.getBookByName("Book1");
+        Book result = bookServiceImpl.getBookByName("Book1");
 
         assertThat(result).isNotNull().isEqualTo(book);
 
-        verify(bookDao, times(1)).findByName(anyString());
+        verify(bookDao, times(1)).findByNameAndIsDeleted(anyString(),anyInt());
     }
 
 
@@ -81,7 +81,7 @@ class BookServiceTest {
     void testAddBook() {
         when(bookDao.save(any(Book.class))).thenReturn(book);
 
-        Book result = bookService.addBook(book);
+        Book result = bookServiceImpl.addBook(book);
 
         assertThat(result).isNotNull().isEqualTo(book);
 
@@ -100,7 +100,7 @@ class BookServiceTest {
         when(bookDao.findById(anyLong())).thenReturn(Optional.of(book));
         when(bookDao.save(any(Book.class))).thenReturn(book);
 
-        Book result = bookService.updateBook(1L, bookDetails);
+        Book result = bookServiceImpl.updateBook(1L, bookDetails);
 
         assertThat(result).isNotNull().isEqualTo(book);
 
@@ -113,7 +113,7 @@ class BookServiceTest {
 
         when(bookDao.save(any(Book.class))).thenReturn(book);
 
-        bookService.deleteBook(1L);
+        bookServiceImpl.deleteBook(1L);
         verify(bookDao, times(1)).save(any(Book.class));
     }
 

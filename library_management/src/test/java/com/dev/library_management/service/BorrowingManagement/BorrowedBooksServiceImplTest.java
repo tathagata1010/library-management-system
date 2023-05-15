@@ -1,4 +1,4 @@
-package com.dev.library_management.service;
+package com.dev.library_management.service.BorrowingManagement;
 
 import com.dev.library_management.dao.BookDao;
 import com.dev.library_management.dao.BorrowedBooksDao;
@@ -6,9 +6,11 @@ import com.dev.library_management.dao.BorrowerDao;
 import com.dev.library_management.entity.Book;
 import com.dev.library_management.entity.BorrowedBooks;
 import com.dev.library_management.entity.Borrower;
-import com.dev.library_management.model.BookBorrowRequest;
-import com.dev.library_management.model.BookBorrowResponse;
-import com.dev.library_management.model.UpdateBookBorrowRequest;
+import com.dev.library_management.model.BorrowingManagement.BookBorrowRequest;
+import com.dev.library_management.model.BorrowingManagement.BookBorrowResponse;
+import com.dev.library_management.model.BorrowingManagement.UpdateBookBorrowRequest;
+import com.dev.library_management.service.BookManagement.implementation.BookServiceImpl;
+import com.dev.library_management.service.BorrowingManagement.implementation.BorrowedBooksServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -25,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doReturn;
 
-public class BorrowedBookServiceTest {
+public class BorrowedBooksServiceImplTest {
 
     @Mock
     BorrowedBooksDao borrowedBooksDao;
@@ -49,16 +51,16 @@ public class BorrowedBookServiceTest {
     Borrower borrower;
 
     @Mock
-    BookService bookService;
+    BookServiceImpl bookServiceImpl;
 
     @InjectMocks
-    BorrowedBooksService borrowedBooksService;
+    BorrowedBooksServiceImpl borrowedBooksServiceImpl;
 
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        borrowedBooksService = new BorrowedBooksService(borrowedBooksDao, bookService, bookDao, borrowerDao);
+        borrowedBooksServiceImpl = new BorrowedBooksServiceImpl(borrowedBooksDao, bookServiceImpl, bookDao, borrowerDao);
         bookBorrowResponse.setId(1L);
         bookBorrowResponse.setBookName("BOOK1");
         bookBorrowResponse.setBorrowerName("BORROWER1");
@@ -88,7 +90,7 @@ public class BorrowedBookServiceTest {
         expectedResponse.setBookName("BOOK1");
         expectedResponse.setReturnDate(LocalDate.now());
         doReturn(borrowedBooksList).when(borrowedBooksDao).findAll();
-        List<BookBorrowResponse> responses = borrowedBooksService.getAllBookReports();
+        List<BookBorrowResponse> responses = borrowedBooksServiceImpl.getAllBookReports();
         assertThat(responses).isNotEmpty();
         assertThat(responses).hasSize(1);
         assertThat(responses.get(0).toString()).isEqualTo(expectedResponse.toString());
@@ -104,14 +106,14 @@ public class BorrowedBookServiceTest {
         expectedResponse.setIssueDate(LocalDate.now());
         expectedResponse.setBookName("BOOK1");
         expectedResponse.setReturnDate(LocalDate.now());
-        BookBorrowResponse responses = borrowedBooksService.getBookReportById(1L);
+        BookBorrowResponse responses = borrowedBooksServiceImpl.getBookReportById(1L);
         assertThat(responses.toString()).isNotNull().isEqualTo(expectedResponse.toString());
 
     }
 
     @Test
     void addBookReport(){
-        doReturn(Optional.of(book)).when(bookDao).findById(anyLong());
+        doReturn(book).when(bookServiceImpl).getBookById(anyLong());
         doReturn(borrower).when(borrowerDao).findByName(anyString());
         doReturn(borrowedBooks).when(borrowedBooksDao).save(any());
         BookBorrowResponse expectedResponse = new BookBorrowResponse();
@@ -129,7 +131,7 @@ public class BorrowedBookServiceTest {
         bookBorrowRequest.setReturnDate(LocalDate.now());
         bookBorrowRequest.setIssueDate(LocalDate.now());
 
-        BookBorrowResponse response = borrowedBooksService.addBookReport(bookBorrowRequest);
+        BookBorrowResponse response = borrowedBooksServiceImpl.addBookReport(1L,bookBorrowRequest);
         assertThat(response.toString()).isNotNull().isEqualTo(expectedResponse.toString());
     }
 
@@ -148,7 +150,7 @@ public class BorrowedBookServiceTest {
         UpdateBookBorrowRequest updateBookBorrowRequest=new UpdateBookBorrowRequest();
         updateBookBorrowRequest.setReturnDate(LocalDate.now());
 
-        BookBorrowResponse response = borrowedBooksService.updateBookReport(1L,updateBookBorrowRequest);
+        BookBorrowResponse response = borrowedBooksServiceImpl.updateBookReport(1L,1L,updateBookBorrowRequest);
 
         assertThat(response.toString()).isNotNull().isEqualTo(expectedResponse.toString());
     }
@@ -157,7 +159,7 @@ public class BorrowedBookServiceTest {
     void deleteBookReport(){
         doReturn(Optional.of(borrowedBooks)).when(borrowedBooksDao).findById(anyLong());
 
-        borrowedBooksService.deleteBookReport(1L);
+        borrowedBooksServiceImpl.deleteBookReport(1L);
         Mockito.verify(borrowedBooksDao).delete(borrowedBooks);
 
     }

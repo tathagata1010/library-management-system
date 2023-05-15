@@ -1,4 +1,4 @@
-package com.dev.library_management.model;
+package com.dev.library_management.model.BorrowingManagement;
 
 import java.time.LocalDate;
 

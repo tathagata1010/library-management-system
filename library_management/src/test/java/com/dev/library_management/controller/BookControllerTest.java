@@ -1,8 +1,9 @@
 package com.dev.library_management.controller;
 
+import com.dev.library_management.controller.BookManagement.BookController;
 import com.dev.library_management.dao.BookDao;
 import com.dev.library_management.entity.Book;
-import com.dev.library_management.service.BookService;
+import com.dev.library_management.service.BookManagement.implementation.BookServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -24,7 +25,7 @@ import static org.mockito.Mockito.when;
 public class BookControllerTest {
 
     @InjectMocks
-    private BookService bookService;
+    private BookServiceImpl bookServiceImpl;
 
     private BookController bookController;
 
@@ -37,9 +38,9 @@ public class BookControllerTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        bookService = new BookService(bookDao);
+        bookServiceImpl = new BookServiceImpl(bookDao);
         book = new Book();
-        bookController = new BookController(bookService);
+        bookController = new BookController(bookServiceImpl);
         book.setName("Title1");
         book.setAuthor("Author1");
         book.setCategory("cat1");
@@ -50,7 +51,7 @@ public class BookControllerTest {
     void testGetAllBooks() {
         List<Book> books = new ArrayList<>();
         books.add(book);
-        when(bookService.getAllBooks()).thenReturn(books);
+        when(bookServiceImpl.getAllBooks()).thenReturn(books);
 
         ResponseEntity<List<Book>> response = bookController.getAllBooks();
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -60,7 +61,7 @@ public class BookControllerTest {
     @Test
     void testGetBookById() {
 
-        when(bookDao.findByName(anyString())).thenReturn(book);
+        when(bookDao.findByNameAndIsDeleted(anyString(),anyInt())).thenReturn(book);
 
         ResponseEntity<Book> response = bookController.getBookByName("Title1");
 

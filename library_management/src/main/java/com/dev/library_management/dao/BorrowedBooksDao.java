@@ -1,5 +1,6 @@
 package com.dev.library_management.dao;
 
+import com.dev.library_management.entity.Book;
 import com.dev.library_management.entity.BorrowedBooks;
 import com.dev.library_management.entity.Borrower;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,7 +20,11 @@ public interface BorrowedBooksDao extends JpaRepository<BorrowedBooks, Long> {
     List<Borrower> findBorrowersByBookId(@Param("bookId") Long bookId);
 
 
+    @Query("SELECT b FROM BorrowedBooks b WHERE b.borrower.id = :borrowerId AND b.book.id = :bookId AND b.returnDate IS NULL")
+    BorrowedBooks findByBorrowerIdAndBookIdAndReturnDateIsNull(@Param("borrowerId") Long borrowerId, @Param("bookId") Long bookId);
 
+    @Query("SELECT bb FROM BorrowedBooks bb WHERE bb.book.id = :bookId")
+    List<BorrowedBooks> findByBookId(@Param("bookId") Long bookId);
 
 
 }

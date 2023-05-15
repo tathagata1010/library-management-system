@@ -93,6 +93,19 @@ public class BorrowedBooks {
         this.isLost = isLost;
     }
 
+    public BorrowedBooks(Long id, Book book, Long borrowerId, String borrowerName, String borrowerPhoneNumber, LocalDate issueDate, LocalDate returnDate, Boolean isLost) {
+        this.id = id;
+        this.book = book;
+        this.borrower = new Borrower();
+        this.borrower.setId(borrowerId);
+        this.borrower.setName(borrowerName);
+        this.borrower.setPhoneNumber(borrowerPhoneNumber);
+        this.issueDate = issueDate;
+        this.returnDate = returnDate;
+        this.isLost = isLost;
+    }
+
+
     @Override
     public String toString() {
         return "BorrowedBooks{" +

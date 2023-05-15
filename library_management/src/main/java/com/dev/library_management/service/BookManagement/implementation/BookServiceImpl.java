@@ -1,25 +1,27 @@
-package com.dev.library_management.service;
+package com.dev.library_management.service.BookManagement.implementation;
 
 import com.dev.library_management.dao.BookDao;
 import com.dev.library_management.entity.Book;
+import com.dev.library_management.exception.BookAlreadyExistsException;
 import com.dev.library_management.exception.BookNotFoundException;
+import com.dev.library_management.service.BookManagement.BookService;
 import com.dev.library_management.utility.Constants;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class BookService {
+public class BookServiceImpl implements BookService {
 
 
     private final BookDao bookDao;
 
-    public BookService(BookDao bookDao) {
+    public BookServiceImpl(BookDao bookDao) {
         this.bookDao = bookDao;
     }
 
     public List<Book> getAllBooks() {
-        return bookDao.findAllByIsDeleted(0);
+        return bookDao.findAll();
     }
 
     public Book getBookById(Long id) throws BookNotFoundException {
@@ -28,7 +30,7 @@ public class BookService {
     }
 
     public Book getBookByName(String name) throws BookNotFoundException {
-        Book book= bookDao.findByName(name);
+        Book book= bookDao.findByNameAndIsDeleted(name,0);
 
         if (book!=null) {
             return book;
@@ -37,16 +39,14 @@ public class BookService {
         }
     }
 
-    public Book addBook(Book book) {
-        // Check if the book already exists based on its ISBN
-        Book existingBook = bookDao.findByIsbn(book.getIsbn());
+    public Book addBook(Book book) throws BookAlreadyExistsException {
+        Book existingBook = bookDao.findByIsbnAndIsDeleted(book.getIsbn(),0);
         if (existingBook != null) {
-            return existingBook;
+            throw new BookAlreadyExistsException("Book with ISBN " + book.getIsbn() + " already exists!");
         }
-
-        // If the book doesn't exist, save the new book
         return bookDao.save(book);
     }
+
 
 
     public Book updateBook(Long id, Book bookDetails) throws BookNotFoundException {

@@ -1,7 +1,8 @@
-package com.dev.library_management.controller;
+package com.dev.library_management.controller.BookManagement;
 
 import com.dev.library_management.entity.Book;
-import com.dev.library_management.service.BookService;
+import com.dev.library_management.exception.BookAlreadyExistsException;
+import com.dev.library_management.service.BookManagement.implementation.BookServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -16,13 +17,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/library/books")
+@RequestMapping("/books")
 public class BookController {
 
-    private final BookService bookService;
+    private final BookServiceImpl bookServiceImpl;
 
-    public BookController(BookService bookService) {
-        this.bookService = bookService;
+    public BookController(BookServiceImpl bookServiceImpl) {
+        this.bookServiceImpl = bookServiceImpl;
     }
 
 
@@ -61,7 +62,7 @@ public class BookController {
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
     public ResponseEntity<List<Book>> getAllBooks() {
-       List<Book> books= bookService.getAllBooks();
+       List<Book> books= bookServiceImpl.getAllBooks();
         return new ResponseEntity<>(books, HttpStatus.OK);
     }
 
@@ -120,7 +121,7 @@ public class BookController {
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
     public ResponseEntity<Book> getBookByName(@RequestParam(name = "name", defaultValue = "Mordern Physics") String name) {
-        Book book= bookService.getBookByName(name);
+        Book book= bookServiceImpl.getBookByName(name);
         return new ResponseEntity<>(book, HttpStatus.OK);
     }
 
@@ -164,8 +165,8 @@ public class BookController {
                                     "    }"
                     )
             )
-    ) @RequestBody Book book) {
-        Book bookResponse=bookService.addBook(book);
+    ) @RequestBody Book book) throws BookAlreadyExistsException {
+        Book bookResponse= bookServiceImpl.addBook(book);
         return new ResponseEntity<>(bookResponse, HttpStatus.OK);
     }
 
@@ -194,7 +195,7 @@ public class BookController {
     })
     public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book book) {
 
-        Book bookResponse= bookService.updateBook(id, book);
+        Book bookResponse= bookServiceImpl.updateBook(id, book);
         return new ResponseEntity<>(bookResponse, HttpStatus.OK);
 
     }
@@ -209,7 +210,7 @@ public class BookController {
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
-        bookService.deleteBook(id);
+        bookServiceImpl.deleteBook(id);
         return ResponseEntity.noContent().build();
     }
 }
