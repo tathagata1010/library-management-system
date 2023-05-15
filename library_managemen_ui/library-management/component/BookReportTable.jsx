@@ -19,7 +19,7 @@ const BookReportTable = () => {
 
   useEffect(() => {
     myAxios
-      .get("/borrowed")
+      .get("/books/borrowed")
       .then((response) => {
         console.log(response.data);
         setBookReports(response.data);
@@ -37,7 +37,7 @@ const BookReportTable = () => {
     };
 
     myAxios
-      .put(`/borrowed/${id}`, requestBody)
+      .put(`books/${id}/borrowed/${id}`, requestBody)
       .then((response) => {
         setBookReports((prevReports) =>
           prevReports.map((report) =>
@@ -71,7 +71,7 @@ const BookReportTable = () => {
     const { returnDate } = formData;
     const isoDate = new Date(returnDate).toISOString();
     myAxios
-      .put(`/borrowed/${selectedReport.id}`, {
+      .put(`books/${selectedReport.id}/borrowed/${selectedReport.id}`, {
         returnDate: isoDate,
         isLost: false,
       })
@@ -121,7 +121,7 @@ const BookReportTable = () => {
               </td>
               <td className={styles.tableData}>{bookReport.returnDate}</td>
               <td className={styles.actions}>
-                {bookReport.returnDate == null ? (
+                {bookReport.returnDate == null && bookReport.lost === false ? (
                   <div>
                     <div
                       className={`${styles.dropdown} ${

@@ -10,7 +10,9 @@ const BookTable = () => {
   const { setIsIssue, isIssue } = useContextState();
   const [books, setBooks] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [modalContent, setModalContent] = useState(null);
   const [editBook, setEditBook] = useState(null);
+  const [searchError, setSearchError] = useState(null);
   const [formData, setFormData] = useState({
     isbn: "",
     name: "",
@@ -39,6 +41,7 @@ const BookTable = () => {
 
   const handleIssue = (book) => {
     setIsIssue(true);
+    setModalContent(null);
     setEditBook(book);
     console.log(book);
     setIssueFormData({
@@ -51,6 +54,7 @@ const BookTable = () => {
   let index = 1;
 
   const closeIssueModal = () => {
+    setModalContent(null);
     setIsIssue(false);
   };
 
@@ -88,6 +92,7 @@ const BookTable = () => {
         .get("/books")
         .then((response) => setBooks(response.data))
         .catch((error) => console.log(error));
+      setSearchError(null);
     } else {
       // search query is not empty, fetch filtered list
       myAxios
@@ -95,19 +100,22 @@ const BookTable = () => {
         .then((response) => {
           if (Array.isArray(response.data)) {
             setBooks(response.data);
+            setSearchError(null);
           } else {
+            setSearchError(null);
             setBooks([response.data]);
           }
         })
         .catch((error) => {
-          console.log(error);
+          setSearchError(error.response.data.errorMessage);
+          console.log(searchError);
         });
     }
   };
 
-
   const handleCloseModal = () => {
     setShowModal(false);
+    setModalContent(null);
     // reset the formData state when the modal is closed
     setFormData({
       isbn: "",
@@ -122,7 +130,7 @@ const BookTable = () => {
   const handleView = async (book) => {
     try {
       const response = await myAxios.get(
-        `/borrowed/books/${book.id}/borrowers`
+        `/books/${book.id}/borrowed`
       );
       const borrowers = response.data;
       // display borrowers list in modal or new page
@@ -131,8 +139,6 @@ const BookTable = () => {
       console.error(error);
     }
   };
-
-
 
   const handleIssueFormSubmit = (event) => {
     event.preventDefault();
@@ -144,14 +150,21 @@ const BookTable = () => {
     };
 
     myAxios
-      .post("/borrowed", issueBookData)
+      .post(`books/${issueBookData.bookId}/borrowed`, issueBookData)
       .then((response) => {
         setIsIssue(false);
       })
       .catch((error) => {
-        console.log(error);
+        const errorCode = error.response.data.errorCode;
+        const errorMessage = error.response.data.errorMessage;
+        setModalContent(
+          <div className={styles.error}>
+            <p>
+              Error {errorCode}: {errorMessage}
+            </p>
+          </div>
+        );
       });
-    
   };
 
   const handleFormSubmit = (event) => {
@@ -198,7 +211,15 @@ const BookTable = () => {
           setShowModal(false);
         })
         .catch((error) => {
-          console.log(error);
+          const errorCode = error.response.data.errorCode;
+          const errorMessage = error.response.data.errorMessage;
+          setModalContent(
+            <div className={styles.error}>
+              <p>
+                Error {errorCode}: {errorMessage}
+              </p>
+            </div>
+          );
         });
     }
   };
@@ -225,14 +246,18 @@ const BookTable = () => {
         >
           Add New Book
         </button>
-        <div className={styles.searchBar}>
-          <input
-            type="text"
-            placeholder="Search by book name"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyUp={handleSearch}
-          />
+        <div className={styles.searchBarContainer}>
+          <div className={styles.searchBar}>
+            <input
+              type="text"
+              placeholder="Search by book name"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              // onKeyUp={handleSearch}
+            />
+            <button onClick={handleSearch}>Search</button>
+          </div>
+          {searchError && <p className={styles.error}>{searchError}</p>}
         </div>
       </div>
       <table className={styles.table}>
@@ -340,6 +365,7 @@ const BookTable = () => {
                 {editBook ? "Update Book" : "Add Book"}
               </button>
             </form>
+            {modalContent && <p>{modalContent}</p>}
           </Modal>
         </div>
       )}
@@ -352,6 +378,7 @@ const BookTable = () => {
             onSubmit={handleIssueFormSubmit}
             formData={issueFormData}
             onChange={handleIssueInputChange}
+            modalError={modalContent}
           />
         </div>
       )}

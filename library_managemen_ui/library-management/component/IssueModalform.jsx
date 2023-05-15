@@ -2,7 +2,14 @@ import React from "react";
 import Modal from "react-modal";
 import styles from "../styles/IssueModalForm.module.css";
 
-const IssueBookModal = ({ isOpen, onClose, onSubmit, formData, onChange }) => {
+const IssueBookModal = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  formData,
+  onChange,
+  modalError,
+}) => {
   return (
     <Modal
       isOpen={isOpen}
@@ -54,6 +61,7 @@ const IssueBookModal = ({ isOpen, onClose, onSubmit, formData, onChange }) => {
         </label>
         <button type="submit">Issue book</button>
       </form>
+      {modalError && <p> {modalError} </p>}
     </Modal>
   );
 };
