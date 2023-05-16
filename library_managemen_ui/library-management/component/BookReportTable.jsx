@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import styles from "../styles/BookReportTable.module.css";
 import { myAxios } from "../lib/create-axios";
 import Modal from "react-modal";
-// import { Dropdown,Button } from "@nextui-org/react";
-// import "bootstrap/dist/css/bootstrap.min.css";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Dropdown from "react-bootstrap/Dropdown";
@@ -19,7 +17,7 @@ const BookReportTable = () => {
 
   useEffect(() => {
     myAxios
-      .get("/books/borrowed")
+      .get(`${process.env.NEXT_PUBLIC_ALL_BOOKS_RECORD_URI}`)
       .then((response) => {
         console.log(response.data);
         setBookReports(response.data);
@@ -35,9 +33,13 @@ const BookReportTable = () => {
       lost: true,
       returnDate: null,
     };
+    const LostURI = process.env.NEXT_PUBLIC_RETURN_LOST_URI.replace(
+      "{bookid}",
+      id
+    ).replace("{borrowedid}", id);
 
     myAxios
-      .put(`books/${id}/borrowed/${id}`, requestBody)
+      .put(LostURI, requestBody)
       .then((response) => {
         setBookReports((prevReports) =>
           prevReports.map((report) =>
@@ -70,8 +72,13 @@ const BookReportTable = () => {
     e.preventDefault();
     const { returnDate } = formData;
     const isoDate = new Date(returnDate).toISOString();
+    const ReturnURI = process.env.NEXT_PUBLIC_RETURN_LOST_URI.replace(
+      "{bookid}",
+      selectedReport.id
+    ).replace("{borrowedid}", selectedReport.id);
+
     myAxios
-      .put(`books/${selectedReport.id}/borrowed/${selectedReport.id}`, {
+      .put(ReturnURI, {
         returnDate: isoDate,
         isLost: false,
       })

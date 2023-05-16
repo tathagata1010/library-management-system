@@ -89,14 +89,14 @@ const BookTable = () => {
     if (searchQuery.trim() === "") {
       // search query is empty, fetch original list
       myAxios
-        .get("/books")
+        .get(`${process.env.NEXT_PUBLIC_ALL_BOOKS}`)
         .then((response) => setBooks(response.data))
         .catch((error) => console.log(error));
       setSearchError(null);
     } else {
       // search query is not empty, fetch filtered list
       myAxios
-        .get(`/books/name?name=${searchQuery}`)
+        .get(`${process.env.NEXT_PUBLIC_BOOK_SEARCH_URI}${searchQuery}`)
         .then((response) => {
           if (Array.isArray(response.data)) {
             setBooks(response.data);
@@ -129,9 +129,7 @@ const BookTable = () => {
 
   const handleView = async (book) => {
     try {
-      const response = await myAxios.get(
-        `/books/${book.id}/borrowed`
-      );
+      const response = await myAxios.get(`/books/${book.id}/borrowed`);
       const borrowers = response.data;
       // display borrowers list in modal or new page
       console.log(borrowers);
@@ -148,9 +146,13 @@ const BookTable = () => {
       borrowerPhone: issueFormData.borrowerPhone,
       bookId: issueFormData.bookId,
     };
-
+    const issueBookURI = process.env.NEXT_PUBLIC_BOOK_ISSUE_URI.replace(
+      "{issueBookData.bookId}",
+      issueBookData.bookId
+    );
+    // `books/${issueBookData.bookId}/borrowed`
     myAxios
-      .post(`books/${issueBookData.bookId}/borrowed`, issueBookData)
+      .post(issueBookURI, issueBookData)
       .then((response) => {
         setIsIssue(false);
       })
@@ -180,8 +182,12 @@ const BookTable = () => {
       };
 
       // update the book on the server
+      const editBookURI = process.env.NEXT_PUBLIC_EDIT_BOOK_URI.replace(
+        "{editBook.id}",
+        editBook.id
+      );
       myAxios
-        .put(`books/${editBook.id}`, updatedBook)
+        .put(editBookURI, updatedBook)
         .then((response) => {
           // update the books state with the updated book
           setBooks(
@@ -204,7 +210,7 @@ const BookTable = () => {
 
       // add the new book to the server
       myAxios
-        .post("/books", newBook)
+        .post(`${process.env.NEXT_PUBLIC_ALL_BOOKS_URI}`, newBook)
         .then((response) => {
           // add the new book to the books state
           setBooks([...books, response.data]);
@@ -226,8 +232,12 @@ const BookTable = () => {
 
   const handleDelete = (book) => {
     // delete the book from the server
+    const deleteBookURI = process.env.NEXT_PUBLIC_DELETE_BOOK_URI.replace(
+      "{book.id}",
+      book.id
+    );
     myAxios
-      .delete(`books/${book.id}`)
+      .delete(deleteBookURI)
       .then((response) => {
         // remove the book from the books state
         setBooks(books.filter((b) => b.id !== book.id));

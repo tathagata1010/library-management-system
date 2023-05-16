@@ -1,5 +1,5 @@
 import axios from 'axios';
 
 export const myAxios = axios.create({
-    baseURL: "http://localhost:8083/library"
+    baseURL: `${process.env.NEXT_PUBLIC_BASE_URL}`
 });
