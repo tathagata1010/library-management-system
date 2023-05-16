@@ -1,6 +1,7 @@
 package com.dev.library_management.dao;
 
 import com.dev.library_management.entity.Book;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -11,11 +12,14 @@ public interface BookDao extends JpaRepository<Book, Long> {
 
     public Book findByIsbnAndIsDeleted(String isbn, Integer isDeleted);
 
-    public List<Book> findAllByIsDeleted(Integer isDeleted);
+    List<Book> findAllByIsDeleted(Integer isDeleted);
 
-    public default List<Book> findAll() {
-        return findAllByIsDeleted(0);
+    default List<Book> findAllInAscendingOrderById() {
+        Sort sort = Sort.by(Sort.Direction.DESC, "id");
+        return findAllByIsDeleted(0, sort);
     }
+
+    List<Book> findAllByIsDeleted(Integer isDeleted, Sort sort);
 
 
 }

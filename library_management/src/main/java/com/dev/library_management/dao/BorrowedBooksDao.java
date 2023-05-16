@@ -27,5 +27,6 @@ public interface BorrowedBooksDao extends JpaRepository<BorrowedBooks, Long> {
     List<BorrowedBooks> findByBookId(@Param("bookId") Long bookId);
 
 
+    List<BorrowedBooks> findAllByOrderByIssueDateAsc();
 }
 

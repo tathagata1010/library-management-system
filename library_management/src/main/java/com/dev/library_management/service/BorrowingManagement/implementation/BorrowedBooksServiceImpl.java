@@ -33,18 +33,20 @@ public class BorrowedBooksServiceImpl implements BorrowedBooksService {
     }
 
     public List<BookBorrowResponse> getAllBookReports() {
-        List<BorrowedBooks> borrowedBooks = borrowedBooksDao.findAll();
+        List<BorrowedBooks> borrowedBooks = borrowedBooksDao.findAllByOrderByIssueDateAsc();
         List<BookBorrowResponse> bookDetailsList = new ArrayList<>();
         for (BorrowedBooks borrowedBook : borrowedBooks) {
-            BookBorrowResponse bookBorrowResponse=new BookBorrowResponse();
-            bookBorrowResponse.setId(borrowedBook.getId());
-            bookBorrowResponse.setIssueDate(borrowedBook.getIssueDate());
-            bookBorrowResponse.setBorrowerName(borrowedBook.getBorrower().getName());
-            bookBorrowResponse.setBorrowerPhone(borrowedBook.getBorrower().getPhoneNumber());
-            bookBorrowResponse.setBookName(borrowedBook.getBook().getName());
-            bookBorrowResponse.setReturnDate(borrowedBook.getReturnDate());
-            bookBorrowResponse.setLost(borrowedBook.getLost());
-            bookDetailsList.add(bookBorrowResponse);
+            if(borrowedBook.getBook().getIsDeleted()!=1) {
+                BookBorrowResponse bookBorrowResponse = new BookBorrowResponse();
+                bookBorrowResponse.setId(borrowedBook.getId());
+                bookBorrowResponse.setIssueDate(borrowedBook.getIssueDate());
+                bookBorrowResponse.setBorrowerName(borrowedBook.getBorrower().getName());
+                bookBorrowResponse.setBorrowerPhone(borrowedBook.getBorrower().getPhoneNumber());
+                bookBorrowResponse.setBookName(borrowedBook.getBook().getName());
+                bookBorrowResponse.setReturnDate(borrowedBook.getReturnDate());
+                bookBorrowResponse.setLost(borrowedBook.getLost());
+                bookDetailsList.add(bookBorrowResponse);
+            }
         }
         return bookDetailsList;
     }

@@ -156,6 +156,27 @@ public class BorrowedBooksServiceImplTest {
     }
 
     @Test
+    void getBorrowedBooksByBookId(){
+        List<BookBorrowResponse> bookBorrowResponses = new ArrayList<>();
+        bookBorrowResponses.add(bookBorrowResponse);
+        List<BorrowedBooks> borrowedBooksList = new ArrayList<>();
+        borrowedBooksList.add(borrowedBooks);
+        BookBorrowResponse expectedResponse = new BookBorrowResponse();
+        expectedResponse.setIssueDate(LocalDate.now());
+        expectedResponse.setBorrowerName("BORROWER1");
+        expectedResponse.setBorrowerPhone("123456789");
+        expectedResponse.setBookName("BOOK1");
+        expectedResponse.setReturnDate(LocalDate.now());
+        doReturn(borrowedBooksList).when(borrowedBooksDao).findByBookId(anyLong());
+
+        List<BookBorrowResponse> borrowedBooksResponse=borrowedBooksServiceImpl.getBorrowedBooksByBookId(1L);
+
+        assertThat(borrowedBooksResponse).isNotEmpty();
+        assertThat(borrowedBooksResponse).hasSize(1);
+        assertThat(borrowedBooksResponse.get(0).toString()).isEqualTo(expectedResponse.toString());
+    }
+
+    @Test
     void deleteBookReport(){
         doReturn(Optional.of(borrowedBooks)).when(borrowedBooksDao).findById(anyLong());
 

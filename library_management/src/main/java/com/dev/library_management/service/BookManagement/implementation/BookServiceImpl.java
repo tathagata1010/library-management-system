@@ -21,7 +21,7 @@ public class BookServiceImpl implements BookService {
     }
 
     public List<Book> getAllBooks() {
-        return bookDao.findAll();
+        return bookDao.findAllInAscendingOrderById();
     }
 
     public Book getBookById(Long id) throws BookNotFoundException {
