@@ -1,0 +1,17 @@
+MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of the Library Management System software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+The Software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the Software or the use or other dealings in the Software.
+
+The end-user acknowledges and agrees that the Library Management System may collect and store certain data and information related to the usage and performance of the software. The end-user agrees to comply with all applicable data protection and privacy laws and regulations and acknowledges that the authors or copyright holders are not responsible for the collection, storage, or use of any personal or sensitive information.
+
+Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+The names of the authors or copyright holders may not be used to endorse or promote products derived from this software without specific prior written permission.
+
+By using the Library Management System, you agree to comply with the terms and conditions of this license.

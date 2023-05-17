@@ -167,6 +167,25 @@
   background-color: #ddd;
 }
 
+.dropdownMenu{
+ min-width:min-content;
+ border-radius: 4px;
+}
+
+.dropDown{
+ min-width: min-content;
+ border-radius: 4px;
+ transform: none;
+ opacity: 1;
+ background-color: red;
+}
+
+
+
+.dropdownMenu{
+  width: 150px;
+}
+
 .dropdownButton {
   background-color: white;
   color: black;

@@ -89,7 +89,7 @@ const BookTable = () => {
     if (searchQuery.trim() === "") {
       // search query is empty, fetch original list
       myAxios
-        .get(`${process.env.NEXT_PUBLIC_ALL_BOOKS}`)
+        .get(`${process.env.NEXT_PUBLIC_ALL_BOOKS_URI}`)
         .then((response) => setBooks(response.data))
         .catch((error) => console.log(error));
       setSearchError(null);

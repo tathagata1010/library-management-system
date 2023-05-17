@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import styles from "../styles/BookReportTable.module.css";
 import { myAxios } from "../lib/create-axios";
 import Modal from "react-modal";
-import Button from "react-bootstrap/Button";
+// import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
-import Dropdown from "react-bootstrap/Dropdown";
+// import Dropdown from "react-bootstrap/Dropdown";
+import { Dropdown } from "@nextui-org/react";
+
 
 const BookReportTable = () => {
   const [bookReports, setBookReports] = useState([]);
@@ -66,6 +68,15 @@ const BookReportTable = () => {
     setFormData({
       returnDate: "",
     });
+  };
+
+  const handleAction = (key, bookReport) => {
+    if (key === "return") {
+      setSelectedReport(bookReport);
+      setShowModal(true);
+    } else if (key === "lost") {
+      handleLost(bookReport.id);
+    }
   };
 
   const handleReturnSubmit = (e) => {
@@ -130,7 +141,7 @@ const BookReportTable = () => {
               <td className={styles.actions}>
                 {bookReport.returnDate == null && bookReport.lost === false ? (
                   <div>
-                    <div
+                    {/* <div
                       className={`${styles.dropdown} ${
                         dropdownOpen ? styles.open : ""
                       }`}
@@ -153,14 +164,63 @@ const BookReportTable = () => {
                           Lost
                         </button>
                       </div>
-                    </div>
+                    </div> */}
+                    <Dropdown>
+                      <Dropdown.Button
+                        disableAnimation="true"
+                        solid
+                        className="nextui-c-iWjDFM-icQvSPE-css dropDown"
+                        aria-haspopup="true"
+                        aria-expanded="true"
+                        style={{
+                          transform: "none",
+                          opacity: 1,
+                          borderRadius: "4px",
+                          minWidth: "80px",
+                          padding: "0.5rem 1rem",
+                          height: "40px",
+                        }}
+                        // class={styles.dropDown}
+                      >
+                        Update Status
+                      </Dropdown.Button>
+                      <Dropdown.Menu
+                        disableAnimation="true"
+                        aria-label="Static Actions"
+                        onAction={(key) => handleAction(key, bookReport)}
+                        className={`${styles.dropdownMenu} nextui-c-iWjDFM-gglxka-cv`}
+                      >
+                        <Dropdown.Item key="return">Return book</Dropdown.Item>
+                        <Dropdown.Item key="lost">Report loss</Dropdown.Item>
+                      </Dropdown.Menu>
+                    </Dropdown>
                   </div>
                 ) : (
-                  <div class={styles.dropdown}>
-                    <button class={styles.actionButtonDisabled}>
+                  // <div class={styles.dropdown}>
+                  //   <button class={styles.actionButtonDisabled}>
+                  //     Update Status
+                  //   </button>
+                  // </div>
+
+                  <Dropdown>
+                    <Dropdown.Button
+                      disableAnimation={true}
+                      flat
+                      className="nextui-c-iWjDFM-icQvSPE-css dropDown"
+                      aria-haspopup="true"
+                      aria-expanded="true"
+                      style={{
+                        transform: "none",
+                        opacity: 1,
+                        borderRadius: "4px",
+                        minWidth: "80px",
+                        padding: "0.5rem 1rem",
+                        height: "40px",
+                      }}
+                    >
                       Update Status
-                    </button>
-                  </div>
+                    </Dropdown.Button>
+                  </Dropdown>
                 )}
               </td>
             </tr>
