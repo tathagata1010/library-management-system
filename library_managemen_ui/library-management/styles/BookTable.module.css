@@ -12,10 +12,14 @@
 }
 
 .error {
+  display: flex;
   color: red;
   font-weight: 500;
   text-align: center;
+  justify-content: center;
+  align-items: center;
 }
+
 
 .searchBarContainer {
   display: flex;
@@ -139,6 +143,11 @@
   width: 100%;
 }
 
+.form input:disabled {
+  background-color: #ddd;
+  color: #000;
+}
+
 .form button {
   background-color: #0070f3;
   border: none;
@@ -149,4 +158,34 @@
   font-weight: bold;
   padding: 10px 20px;
   margin-top: 20px;
+}
+
+
+.button {
+  background-color: #0070f3;
+  color: white;
+  border: 1px solid;
+  padding: 8px 16px;
+  border-radius: 5px;
+  font-size: 14px;
+  margin-left: 2%;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: #0062cc;
+}
+
+.buttonDelete {
+  background-color: #dc4444;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.buttonDelete:hover {
+  background-color: #dc3b3b;
 }

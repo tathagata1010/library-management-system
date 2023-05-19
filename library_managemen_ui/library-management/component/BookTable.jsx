@@ -13,6 +13,12 @@ const BookTable = () => {
   const [modalContent, setModalContent] = useState(null);
   const [editBook, setEditBook] = useState(null);
   const [searchError, setSearchError] = useState(null);
+  const [deleteError, setDeleteError] = useState(null);
+  const [deleteBookId, setDeleteBookId] = useState(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteBook, setDeleteBook] = useState(null);
+  
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [formData, setFormData] = useState({
     isbn: "",
     name: "",
@@ -24,6 +30,7 @@ const BookTable = () => {
     borrowerName: "",
     borrowerPhone: "",
     bookId: "",
+    isbn: "",
   });
   useEffect(() => {
     myAxios
@@ -49,6 +56,7 @@ const BookTable = () => {
       borrowerName: "",
       borrowerPhone: "",
       bookId: book.id,
+      isbn: book.isbn,
     });
   };
   let index = 1;
@@ -108,7 +116,6 @@ const BookTable = () => {
         })
         .catch((error) => {
           setSearchError(error.response.data.errorMessage);
-          console.log(searchError);
         });
     }
   };
@@ -146,32 +153,41 @@ const BookTable = () => {
       borrowerPhone: issueFormData.borrowerPhone,
       bookId: issueFormData.bookId,
     };
-    const issueBookURI = process.env.NEXT_PUBLIC_BOOK_ISSUE_URI.replace(
-      "{issueBookData.bookId}",
-      issueBookData.bookId
-    );
-    // `books/${issueBookData.bookId}/borrowed`
-    myAxios
-      .post(issueBookURI, issueBookData)
-      .then((response) => {
-        setIsIssue(false);
-      })
-      .catch((error) => {
-        const errorCode = error.response.data.errorCode;
-        const errorMessage = error.response.data.errorMessage;
-        setModalContent(
-          <div className={styles.error}>
-            <p>
-              Error {errorCode}: {errorMessage}
-            </p>
-          </div>
-        );
-      });
+    if (isNaN(Number(issueBookData.borrowerPhone))) {
+      console.log(issueBookData.borrowerPhone);
+      setModalContent(
+        <div className={styles.error}>
+          Error : Only numbers are allowed in the phone number field.
+        </div>
+      );
+    } else {
+      const issueBookURI = process.env.NEXT_PUBLIC_BOOK_ISSUE_URI.replace(
+        "{issueBookData.bookId}",
+        issueBookData.bookId
+      );
+      // `books/${issueBookData.bookId}/borrowed`
+      myAxios
+        .post(issueBookURI, issueBookData)
+        .then((response) => {
+          setIsIssue(false);
+        })
+        .catch((error) => {
+          const errorCode = error.response.data.errorCode;
+          const errorMessage = error.response.data.errorMessage;
+          setModalContent(
+            <div className={styles.error}>
+              <p>
+                 {errorCode}: {errorMessage}
+              </p>
+            </div>
+          );
+        });
+    }
   };
 
   const handleFormSubmit = (event) => {
     event.preventDefault();
-
+    setModalContent(null);
     if (editBook) {
       const updatedBook = {
         ...editBook,
@@ -222,7 +238,7 @@ const BookTable = () => {
           setModalContent(
             <div className={styles.error}>
               <p>
-                Error {errorCode}: {errorMessage}
+                {errorCode}: {errorMessage}
               </p>
             </div>
           );
@@ -230,21 +246,40 @@ const BookTable = () => {
     }
   };
 
+
   const handleDelete = (book) => {
-    // delete the book from the server
-    const deleteBookURI = process.env.NEXT_PUBLIC_DELETE_BOOK_URI.replace(
-      "{book.id}",
-      book.id
-    );
-    myAxios
-      .delete(deleteBookURI)
-      .then((response) => {
-        // remove the book from the books state
-        setBooks(books.filter((b) => b.id !== book.id));
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    setDeleteBook(book);
+    setDeleteModalOpen(true);
+    setDeleteError(null);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (deleteBook) {
+      // delete the book from the server
+      const deleteBookURI = process.env.NEXT_PUBLIC_DELETE_BOOK_URI.replace(
+        "{book.id}",
+        deleteBook.id
+      );
+
+      myAxios
+        .delete(deleteBookURI)
+        .then((response) => {
+          // remove the book from the books state
+          setBooks(books.filter((b) => b.id !== deleteBook.id));
+          setDeleteError(null);
+          setDeleteModalOpen(false); // Close the delete modal
+        })
+        .catch((error) => {
+          console.log(error);
+          setDeleteError(error.response.data.errorMessage);
+        });
+    }
+  };
+
+  const handleDeleteClose = () => {
+    setDeleteBook(null);
+    setDeleteModalOpen(false);
+    setDeleteError(null);
   };
 
   return (
@@ -314,11 +349,46 @@ const BookTable = () => {
                 >
                   Issue
                 </button>
+                {deleteError && deleteBookId === book.id && (
+                  <p className={styles.error}>Error: {deleteError}</p>
+                )}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      {deleteBook && (
+        <Modal
+          isOpen={deleteModalOpen}
+          onRequestClose={handleDeleteClose}
+          contentLabel="Delete Book"
+          className={styles.modal}
+        >
+          <h2>Delete Book</h2>
+
+          {deleteError ? (
+            <div>
+              <p>Delete operation failed because {deleteError} !</p>
+              <button onClick={handleDeleteClose} className={styles.button}>
+                Close
+              </button>
+            </div>
+          ) : (
+            <div>
+              <p>Are you sure you want to delete this book?</p>
+              <button
+                onClick={handleDeleteConfirm}
+                className={styles.buttonDelete}
+              >
+                Delete
+              </button>
+              <button onClick={handleDeleteClose} className={styles.button}>
+                Close
+              </button>
+            </div>
+          )}
+        </Modal>
+      )}
       {showModal && (
         <div>
           <Modal
@@ -339,6 +409,7 @@ const BookTable = () => {
                   value={formData.isbn}
                   onChange={handleInputChange}
                   required
+                  disabled={editBook ? true : false}
                 />
               </label>
               <label className={styles.label}>

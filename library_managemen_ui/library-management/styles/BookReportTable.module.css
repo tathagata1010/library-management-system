@@ -2,7 +2,8 @@
   border-collapse: collapse;
   width: 80%;
   margin: 0 auto;
-  margin-top: 3%;
+  margin-top: 6%;
+  margin-bottom: 3%;
 }
 
 .tableData {
@@ -153,23 +154,11 @@
   display: block;
 }
 
-.dropdownOption {
-  display: block;
-  padding: 12px;
-  background-color: #f1f1f1;
-  color: black;
-  font-size: 16px;
-  border: none;
-  cursor: pointer;
-}
-
-.dropdownOption:hover {
-  background-color: #ddd;
-}
 
 .dropdownMenu{
  min-width:min-content;
  border-radius: 4px;
+  width: 150px;
 }
 
 .dropDown{
@@ -182,9 +171,6 @@
 
 
 
-.dropdownMenu{
-  width: 150px;
-}
 
 .dropdownButton {
   background-color: white;

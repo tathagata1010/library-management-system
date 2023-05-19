@@ -12,6 +12,7 @@ const BookReportTable = () => {
   const [bookReports, setBookReports] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
+  const [selectedReportId, setSelectedReportId] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [formData, setFormData] = useState({
     returnDate: "",
@@ -54,8 +55,9 @@ const BookReportTable = () => {
       });
   };
 
-  const toggleDropdown = () => {
-    setDropdownOpen(!dropdownOpen);
+  const toggleDropdown = (reportId) => {
+     setDropdownOpen(!dropdownOpen);
+    setSelectedReportId((prevId) => (prevId === reportId ? null : reportId));
   };
 
   const onChange = (e) => {
@@ -141,31 +143,44 @@ const BookReportTable = () => {
               <td className={styles.actions}>
                 {bookReport.returnDate == null && bookReport.lost === false ? (
                   <div>
-                    {/* <div
+                    <div
                       className={`${styles.dropdown} ${
                         dropdownOpen ? styles.open : ""
                       }`}
                     >
-                      <button class={styles.dropbtn}>Update Status</button>
-                      <div class={styles.dropdownContent}>
-                        <button
-                          class={styles.dropdownButton}
-                          onClick={() => {
-                            setSelectedReport(bookReport);
-                            setShowModal(true);
-                          }}
-                        >
-                          Return
-                        </button>
-                        <button
-                          class={styles.dropdownButton}
-                          onClick={() => handleLost(bookReport.id)}
-                        >
-                          Lost
-                        </button>
-                      </div>
-                    </div> */}
-                    <Dropdown>
+                      <button
+                        className={`${styles.dropbtn} ${
+                          selectedReportId === bookReport.id ? styles.open : ""
+                        }`}
+                        onClick={() => toggleDropdown(bookReport.id)}
+                      >
+                        Update Status
+                      </button>
+                      {selectedReportId === bookReport.id && dropdownOpen && (
+                        <div class={styles.dropdownContent}>
+                          <button
+                            class={styles.dropdownButton}
+                            onClick={() => {
+                              setSelectedReport(bookReport);
+                              setShowModal(true);
+                              toggleDropdown(bookReport.id);
+                            }}
+                          >
+                            Return
+                          </button>
+                          <button
+                            class={styles.dropdownButton}
+                            onClick={() => {
+                              handleLost(bookReport.id);
+                              toggleDropdown(bookReport.id);
+                            }}
+                          >
+                            Lost
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    {/* <Dropdown>
                       <Dropdown.Button
                         disableAnimation="true"
                         solid
@@ -180,7 +195,7 @@ const BookReportTable = () => {
                           padding: "0.5rem 1rem",
                           height: "40px",
                         }}
-                        // class={styles.dropDown}
+                        class={styles.dropDown}
                       >
                         Update Status
                       </Dropdown.Button>
@@ -193,34 +208,34 @@ const BookReportTable = () => {
                         <Dropdown.Item key="return">Return book</Dropdown.Item>
                         <Dropdown.Item key="lost">Report loss</Dropdown.Item>
                       </Dropdown.Menu>
-                    </Dropdown>
+                    </Dropdown> */}
                   </div>
                 ) : (
-                  // <div class={styles.dropdown}>
-                  //   <button class={styles.actionButtonDisabled}>
-                  //     Update Status
-                  //   </button>
-                  // </div>
-
-                  <Dropdown>
-                    <Dropdown.Button
-                      disableAnimation={true}
-                      flat
-                      className="nextui-c-iWjDFM-icQvSPE-css dropDown"
-                      aria-haspopup="true"
-                      aria-expanded="true"
-                      style={{
-                        transform: "none",
-                        opacity: 1,
-                        borderRadius: "4px",
-                        minWidth: "80px",
-                        padding: "0.5rem 1rem",
-                        height: "40px",
-                      }}
-                    >
+                  <div class={styles.dropdown}>
+                    <button class={styles.actionButtonDisabled}>
                       Update Status
-                    </Dropdown.Button>
-                  </Dropdown>
+                    </button>
+                  </div>
+
+                  // <Dropdown>
+                  //   <Dropdown.Button
+                  //     disableAnimation={true}
+                  //     flat
+                  //     className="nextui-c-iWjDFM-icQvSPE-css dropDown"
+                  //     aria-haspopup="true"
+                  //     aria-expanded="true"
+                  //     style={{
+                  //       transform: "none",
+                  //       opacity: 1,
+                  //       borderRadius: "4px",
+                  //       minWidth: "80px",
+                  //       padding: "0.5rem 1rem",
+                  //       height: "40px",
+                  //     }}
+                  //   >
+                  //     Update Status
+                  //   </Dropdown.Button>
+                  // </Dropdown>
                 )}
               </td>
             </tr>

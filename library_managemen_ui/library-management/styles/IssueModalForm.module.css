@@ -28,6 +28,11 @@
   width: 100%;
 }
 
+.form input:disabled {
+  background-color: #ddd;
+  color: #000;
+}
+
 .form button {
   background-color: #0070f3;
   border: none;

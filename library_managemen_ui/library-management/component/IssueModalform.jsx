@@ -18,7 +18,20 @@ const IssueBookModal = ({
       className={styles.modal}
     >
       <h2 className={styles.formHeading}>Issue Book Modal</h2>
+
       <form onSubmit={onSubmit} className={styles.form}>
+        <label className={styles.label}>
+          ISBN:
+          <input
+            type="text"
+            name="bookId"
+            onChange={onChange}
+            required
+            value={formData.isbn}
+            disabled={true}
+          />
+        </label>
+
         <label className={styles.label}>
           Issue Date
           <input
@@ -27,9 +40,10 @@ const IssueBookModal = ({
             value={formData.issueDate}
             onChange={onChange}
             required
+            // min={new Date().toISOString().split("T")[0]}
           />
         </label>
-        <label className={styles.label}>
+        {/* <label className={styles.label}>
           Book Id:
           <input
             type="text"
@@ -38,7 +52,8 @@ const IssueBookModal = ({
             required
             value={formData.bookId}
           />
-        </label>
+        </label> */}
+
         <label className={styles.label}>
           Borrower Name:
           <input
@@ -49,6 +64,7 @@ const IssueBookModal = ({
             value={formData.borrowerName}
           />
         </label>
+
         <label className={styles.label}>
           Borrower Phone Number:
           <input
@@ -59,8 +75,10 @@ const IssueBookModal = ({
             value={formData.borrowerPhone}
           />
         </label>
+
         <button type="submit">Issue book</button>
       </form>
+
       {modalError && <p> {modalError} </p>}
     </Modal>
   );
