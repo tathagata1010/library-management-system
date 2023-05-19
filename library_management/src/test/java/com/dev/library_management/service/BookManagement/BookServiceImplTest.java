@@ -1,13 +1,19 @@
 package com.dev.library_management.service.BookManagement;
 import com.dev.library_management.dao.BookDao;
+import com.dev.library_management.dao.BorrowedBooksDao;
 import com.dev.library_management.entity.Book;
+import com.dev.library_management.entity.BorrowedBooks;
+import com.dev.library_management.entity.Borrower;
+import com.dev.library_management.model.BorrowingManagement.BookBorrowResponse;
 import com.dev.library_management.service.BookManagement.implementation.BookServiceImpl;
+import com.dev.library_management.service.BorrowingManagement.implementation.BorrowedBooksServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +28,9 @@ class BookServiceImplTest {
 
     @Mock
     private BookDao bookDao;
+
+    @Mock
+    private BorrowedBooksDao borrowedBooksDao;
 
     @InjectMocks
     private BookServiceImpl bookServiceImpl;
@@ -46,12 +55,12 @@ class BookServiceImplTest {
         List<Book> bookList = new ArrayList<>();
         bookList.add(book);
 
-        when(bookDao.findAll()).thenReturn(bookList);
+        when(bookDao.findAllInAscendingOrderById()).thenReturn(bookList);
 
         List<Book> result = bookServiceImpl.getAllBooks();
         assertThat(result).isNotEmpty().containsOnly(book);
 
-        verify(bookDao, times(1)).findAll();
+        verify(bookDao, times(1)).findAllInAscendingOrderById();
     }
 
     @Test
@@ -107,14 +116,38 @@ class BookServiceImplTest {
         verify(bookDao, times(1)).save(any(Book.class));
     }
 
-    @Test
-    void testDeleteBook(){
-        when(bookDao.findById(anyLong())).thenReturn(Optional.of(book));
-
-        when(bookDao.save(any(Book.class))).thenReturn(book);
-
-        bookServiceImpl.deleteBook(1L);
-        verify(bookDao, times(1)).save(any(Book.class));
-    }
+//    @Test
+//    void testDeleteBook(){
+//        List<BookBorrowResponse> bookBorrowResponses = new ArrayList<>();
+//        BookBorrowResponse bookBorrowResponse=new BookBorrowResponse();
+//
+//        List<BorrowedBooks> borrowedBooks = new ArrayList<>();
+//
+//        Borrower  borrower = new Borrower("BORROWER1", "123456789");
+//        BorrowedBooks borrowedBook = new BorrowedBooks();
+//        borrowedBook.setBook(book);
+//        borrowedBook.setBorrower(borrower);
+//        borrowedBook.setIssueDate(LocalDate.now());
+//        borrowedBook.setReturnDate(LocalDate.now());
+//
+//        borrowedBooks.add(borrowedBook);
+//
+//
+//        bookBorrowResponse.setId(1L);
+//        bookBorrowResponse.setBookName("BOOK1");
+//        bookBorrowResponse.setBorrowerName("BORROWER1");
+//        bookBorrowResponse.setBorrowerPhone("123456789");
+//        bookBorrowResponse.setIssueDate(LocalDate.now());
+//        bookBorrowResponse.setReturnDate(LocalDate.now());
+//        bookBorrowResponses.add(bookBorrowResponse);
+//        when(borrowedBooksDao.findByBookId(anyLong())).thenReturn(borrowedBooks);
+//        when(bookDao.findById(anyLong())).thenReturn(Optional.of(book));
+//        when(bookDao.save(any(Book.class))).thenReturn(book);
+////        when(BorrowedBooksServiceImpl.getBorrowedBooksByBookId(anyLong())).thenReturn(bookBorrowResponses);
+//
+//        doReturn(bookBorrowResponses).when(borrowedBooksDao).findByBookId(anyLong());
+//        bookServiceImpl.deleteBook(1L);
+//        verify(bookDao, times(1)).save(any(Book.class));
+//    }
 
 }

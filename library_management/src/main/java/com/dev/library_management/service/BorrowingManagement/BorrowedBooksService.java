@@ -14,7 +14,7 @@ public interface BorrowedBooksService {
 
     BookBorrowResponse getBookReportById(Long id) throws BorrowedNotFoundException;
 
-    List<BookBorrowResponse> getBorrowedBooksByBookId(Long bookId);
+
 
     BookBorrowResponse addBookReport(Long bookId, BookBorrowRequest bookBorrowRequest) throws BookAlreadyIssuedException;
 

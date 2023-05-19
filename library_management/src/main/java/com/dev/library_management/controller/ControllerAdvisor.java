@@ -1,9 +1,6 @@
 package com.dev.library_management.controller;
 
-import com.dev.library_management.exception.BookAlreadyExistsException;
-import com.dev.library_management.exception.BookAlreadyIssuedException;
-import com.dev.library_management.exception.BookNotFoundException;
-import com.dev.library_management.exception.BorrowedNotFoundException;
+import com.dev.library_management.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -57,5 +54,14 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
+    @ExceptionHandler(BookCannotBeDeletedException.class)
+    public ResponseEntity<Map<String, String>> handleBookCannotBeDeletedException(BookCannotBeDeletedException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("errorCode", "BOOK_CANNOT_BE_DELETED");
+        errorResponse.put("errorMessage",  ex.getMessage());
+        log.error(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+    
 
 }

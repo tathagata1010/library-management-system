@@ -196,18 +196,18 @@ public class BorrowedBooksController {
         return ResponseEntity.status(HttpStatus.CREATED).body(updatedBookReport);
     }
 
-//    @DeleteMapping("/{id}")
-//    @Tag(name = "Borrowed Controller")
-//    @Operation(summary = "Delete book by ID")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "204", description = "Book deleted successfully"),
-//            @ApiResponse(responseCode = "404", description = "Book not found", content = @Content),
-//            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
-//    })
-//    public ResponseEntity<Void> deleteBookReport(@PathVariable Long id) throws BorrowedNotFoundException {
-//        borrowedBooksService.deleteBookReport(id);
-//        return ResponseEntity.noContent().build();
-//    }
+    @DeleteMapping("borrowed/{id}")
+    @Tag(name = "Borrowed Controller")
+    @Operation(summary = "Delete book by ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Book deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Book not found", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+    })
+    public ResponseEntity<Void> deleteBookReport(@PathVariable Long id) throws BorrowedNotFoundException {
+        borrowedBooksServiceImpl.deleteBookReport(id);
+        return ResponseEntity.noContent().build();
+    }
 
 //    @GetMapping("books/{bookId}/borrowers")
 //    public List<Borrower> getBorrowersForBook(@PathVariable Long bookId) {

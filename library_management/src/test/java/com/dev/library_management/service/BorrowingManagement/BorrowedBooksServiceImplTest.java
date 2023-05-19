@@ -53,6 +53,7 @@ public class BorrowedBooksServiceImplTest {
     @Mock
     BookServiceImpl bookServiceImpl;
 
+
     @InjectMocks
     BorrowedBooksServiceImpl borrowedBooksServiceImpl;
 
@@ -60,7 +61,7 @@ public class BorrowedBooksServiceImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        borrowedBooksServiceImpl = new BorrowedBooksServiceImpl(borrowedBooksDao, bookServiceImpl, bookDao, borrowerDao);
+        borrowedBooksServiceImpl = new BorrowedBooksServiceImpl(borrowedBooksDao, bookServiceImpl,  borrowerDao);
         bookBorrowResponse.setId(1L);
         bookBorrowResponse.setBookName("BOOK1");
         bookBorrowResponse.setBorrowerName("BORROWER1");
@@ -89,7 +90,7 @@ public class BorrowedBooksServiceImplTest {
         expectedResponse.setBorrowerPhone("123456789");
         expectedResponse.setBookName("BOOK1");
         expectedResponse.setReturnDate(LocalDate.now());
-        doReturn(borrowedBooksList).when(borrowedBooksDao).findAll();
+        doReturn(borrowedBooksList).when(borrowedBooksDao).findAllByOrderByIssueDateAsc();
         List<BookBorrowResponse> responses = borrowedBooksServiceImpl.getAllBookReports();
         assertThat(responses).isNotEmpty();
         assertThat(responses).hasSize(1);

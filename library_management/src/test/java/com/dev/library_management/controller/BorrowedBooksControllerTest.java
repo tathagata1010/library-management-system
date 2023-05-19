@@ -63,7 +63,7 @@ public class BorrowedBooksControllerTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        borrowedBooksServiceImpl = new BorrowedBooksServiceImpl(borrowedBooksDao, bookServiceImpl, bookDao, borrowerDao);
+        borrowedBooksServiceImpl = new BorrowedBooksServiceImpl(borrowedBooksDao, bookServiceImpl, borrowerDao);
         borrowedBooksController=new BorrowedBooksController(borrowedBooksServiceImpl);
         bookBorrowResponse.setId(1L);
         bookBorrowResponse.setBookName("BOOK1");

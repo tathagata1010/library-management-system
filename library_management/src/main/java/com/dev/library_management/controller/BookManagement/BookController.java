@@ -2,6 +2,8 @@ package com.dev.library_management.controller.BookManagement;
 
 import com.dev.library_management.entity.Book;
 import com.dev.library_management.exception.BookAlreadyExistsException;
+import com.dev.library_management.exception.BookCannotBeDeletedException;
+import com.dev.library_management.exception.BookNotFoundException;
 import com.dev.library_management.service.BookManagement.implementation.BookServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,8 +25,6 @@ public class BookController {
     private final BookServiceImpl bookServiceImpl;
 
     public BookController(BookServiceImpl bookServiceImpl) {
-
-
         this.bookServiceImpl = bookServiceImpl;
     }
 
@@ -211,7 +211,7 @@ public class BookController {
             @ApiResponse(responseCode = "404", description = "Book not found", content = @Content),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
-    public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteBook(@PathVariable Long id) throws BookNotFoundException, BookCannotBeDeletedException {
         bookServiceImpl.deleteBook(id);
         return ResponseEntity.noContent().build();
     }
