@@ -1,106 +1,240 @@
 package com.dev.library.service.BookManagement.implementation;
 
-import com.dev.library.dao.BookDao;
 import com.dev.library.entity.Book;
 import com.dev.library.exception.BookAlreadyExistsException;
 import com.dev.library.exception.BookCannotBeDeletedException;
 import com.dev.library.exception.BookNotFoundException;
-import com.dev.library.model.BorrowingManagement.BookBorrowResponse;
-import com.dev.library.service.BookManagement.BookService;
-import com.dev.library.service.BorrowingManagement.implementation.BorrowedBooksServiceImpl;
 import com.dev.library.utility.Constants;
 import org.springframework.stereotype.Service;
-
+import org.web3j.abi.datatypes.DynamicArray;
+import org.web3j.abi.datatypes.Type;
+import org.web3j.crypto.Credentials;
+import org.web3j.librarycontract.LibraryContract;
+import org.web3j.librarycontract_updated.LibraryContract_updated;
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.RemoteFunctionCall;
+import org.web3j.protocol.core.methods.response.EthBlock;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.protocol.http.HttpService;
+import org.web3j.tx.gas.ContractGasProvider;
+import org.web3j.tx.gas.StaticGasProvider;
+import javax.annotation.PostConstruct;
+import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class BookServiceImpl implements BookService {
+public class BookServiceImpl {
 
-    private final BookDao bookDao;
+//    private LibraryContract libraryContract;
 
-    public BookServiceImpl(BookDao bookDao) {
-        this.bookDao = bookDao;
+    private LibraryContract_updated libraryContract;
+
+//    public void setLibraryContract(LibraryContract libraryContract) {
+//        this.libraryContract = libraryContract;
+//    }
+
+    public void setLibraryContract(LibraryContract_updated libraryContract) {
+        this.libraryContract = libraryContract;
     }
 
-    public List<Book> getAllBooks() {
-        return bookDao.findAllInAscendingOrderById();
+    @PostConstruct
+    public void initialize() {
+        try {
+            Web3j web3 = Web3j.build(new HttpService(Constants.RPC_URL));
+            Credentials credentials = Credentials.create(Constants.CREDENTIAL);
+
+            EthBlock block = web3.ethGetBlockByNumber(
+                    DefaultBlockParameterName.LATEST,
+                    false
+            ).send();
+
+            ContractGasProvider contractGasProvider = new StaticGasProvider(
+                    web3.ethGasPrice().send().getGasPrice(),
+                    block.getBlock().getGasLimit()
+            );
+
+//            libraryContract = LibraryContract.load(
+//                    Constants.CONTRACT_ADDRESS,
+//                    web3,
+//                    credentials,
+//                    contractGasProvider
+//            );
+
+            libraryContract = LibraryContract_updated.load(
+                    Constants.CONTRACT_ADDRESS,
+                    web3,
+                    credentials,
+                    contractGasProvider
+            );
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public Book getBookById(Long id) throws BookNotFoundException {
-        return bookDao.findById(id)
-                .orElseThrow(() -> new BookNotFoundException(Constants.BOOK_NOT_FOUND + id));
+//    public Book addBook(Book book) throws Exception {
+//        List<Book> books = getAllBooks();
+//
+//        for (Book bookCheck : books) {
+//             if (bookCheck.getName().equals(book.getName()) && !bookCheck.getIsDeleted()) {
+//                throw new BookAlreadyExistsException("Book with name " + book.getName() + " already exists!");
+//            }
+//        }
+//
+//        RemoteFunctionCall<TransactionReceipt> addBookFunction = libraryContract.addBook(
+//                book.getName(),
+//                book.getAuthor(),
+//                book.getCategory(),
+//                false
+//        );
+//
+//        TransactionReceipt transactionReceipt = addBookFunction.send();
+//        System.out.println(transactionReceipt);
+//        Book responseBook = new Book();
+//        List bookAddedEvents = LibraryContract.getBookAddedEvents(transactionReceipt);
+//        if (!bookAddedEvents.isEmpty()) {
+//            LibraryContract.BookAddedEventResponse bookAddedEvent = (LibraryContract.BookAddedEventResponse) bookAddedEvents.get(0);
+//
+//            responseBook.setId(bookAddedEvent.id);
+//            responseBook.setName(bookAddedEvent.name);
+//            responseBook.setAuthor(bookAddedEvent.author);
+//            responseBook.setCategory(bookAddedEvent.category);
+//            responseBook.setIsDeleted(bookAddedEvent.isDeleted);
+//            System.out.println(responseBook);
+//        }
+//        return responseBook;
+//    }
+
+
+    public Book addBook(Book book) throws Exception {
+        List<Book> books = getAllBooks();
+
+        for (Book bookCheck : books) {
+            if (bookCheck.getName().equals(book.getName()) && !bookCheck.getIsDeleted()) {
+                throw new BookAlreadyExistsException("Book with name " + book.getName() + " already exists!");
+            }
+        }
+        RemoteFunctionCall<TransactionReceipt> addBookFunction = libraryContract.addBook(
+                book.getName(),
+                book.getAuthor(),
+                book.getCategory(),
+                false
+        );
+        TransactionReceipt transactionReceipt = addBookFunction.send();
+
+        System.out.println(transactionReceipt);
+
+        Book responseBook = new Book();
+        List bookAddedEvents = libraryContract.getBookAddedEvents(transactionReceipt);
+        if (!bookAddedEvents.isEmpty()) {
+            LibraryContract_updated.BookAddedEventResponse bookAddedEvent = (LibraryContract_updated.BookAddedEventResponse) bookAddedEvents.get(0);
+            responseBook.setId(bookAddedEvent.id);
+            responseBook.setName(bookAddedEvent.name);
+            responseBook.setAuthor(bookAddedEvent.author);
+            responseBook.setCategory(bookAddedEvent.category);
+            responseBook.setIsDeleted(bookAddedEvent.isDeleted);
+            System.out.println(responseBook);
+        }
+
+        return responseBook;
+    }
+
+
+//    public List<Book> getAllBooks() throws Exception {
+//        RemoteFunctionCall<List> getAllBooksFunction = libraryContract.getAllBooks();
+//        List result = getAllBooksFunction.send();
+//        System.out.println(result);
+//
+//        List<Book> books = new ArrayList<>();
+//        for (Object item : result) {
+//            if (item instanceof LibraryContract.Book && Boolean.TRUE.equals(!((LibraryContract.Book) item).isDeleted)) {
+//                BigInteger value = ((LibraryContract.Book) item).id;
+//                String name = ((LibraryContract.Book) item).name;
+//                String author = ((LibraryContract.Book) item).author;
+//                String category = ((LibraryContract.Book) item).category;
+//                boolean isDeleted = ((LibraryContract.Book) item).isDeleted;
+//                Book book = new Book(value, name, author, category,isDeleted);
+//                books.add(book);
+//            }
+//        }
+//
+//        return books;
+//    }
+
+
+        public List<Book> getAllBooks() throws Exception {
+        RemoteFunctionCall<List> getAllBooksFunction = libraryContract.getAllBooks();
+        List result = getAllBooksFunction.send();
+        System.out.println(result);
+
+        List<Book> books = new ArrayList<>();
+        for (Object item : result) {
+            if (item instanceof LibraryContract_updated.Book && Boolean.TRUE.equals(!((LibraryContract_updated.Book) item).isDeleted)) {
+                BigInteger value = ((LibraryContract_updated.Book) item).id;
+                String name = ((LibraryContract_updated.Book) item).name;
+                String author = ((LibraryContract_updated.Book) item).author;
+                String category = ((LibraryContract_updated.Book) item).category;
+                boolean isDeleted = ((LibraryContract_updated.Book) item).isDeleted;
+                Book book = new Book(value, name, author, category,isDeleted);
+                books.add(book);
+            }
+        }
+
+        return books;
     }
 
     public Book getBookByName(String name) throws BookNotFoundException {
-        Book book = bookDao.findByNameAndIsDeleted(name, 0);
-
-        if (book != null) {
-            return book;
-        } else {
+        try {
+            RemoteFunctionCall<LibraryContract_updated.Book> getBookCall = libraryContract.getBookByName(name);
+            LibraryContract_updated.Book bookData = getBookCall.send();
+            System.out.println(bookData);
+            BigInteger value = bookData.id;
+            String author = bookData.author;
+            String category = bookData.category;
+            boolean isDeleted = bookData.isDeleted;
+            return new Book(value, name, author, category,isDeleted);
+        } catch (Exception e) {
             throw new BookNotFoundException(Constants.BOOK_NOT_FOUND_NAME + name);
         }
     }
 
-    public Book addBook(Book book) throws BookAlreadyExistsException {
-        Book existingBook = bookDao.findByIsbnAndIsDeleted(book.getIsbn(), 0);
-        Book deletedExistingBook = bookDao.findByIsbnAndIsDeleted(book.getIsbn(), 1);
+    public Book updateBook(BigInteger id, Book book) throws Exception {
 
-        if(deletedExistingBook!=null)
-        {
-            deletedExistingBook.setIsDeleted(0);
-            return bookDao.save(deletedExistingBook);
-        }
+        Book responseBook=new Book();
+        try {
+            RemoteFunctionCall<TransactionReceipt> updateBookFunction = libraryContract.updateBook(id, book.getName(), book.getAuthor(), book.getCategory());
+            TransactionReceipt transactionReceipt=updateBookFunction.send();
+            List bookUpdatedEvent= LibraryContract_updated.getBookUpdatedEvents(transactionReceipt);
 
-        if (existingBook != null) {
-            throw new BookAlreadyExistsException("Book with ISBN " + book.getIsbn() + " already exists!");
-        }
+            if (!bookUpdatedEvent.isEmpty()) {
+                LibraryContract_updated.BookUpdatedEventResponse bookUpdatedEventResponse = (LibraryContract_updated.BookUpdatedEventResponse) bookUpdatedEvent.get(0);
 
-        existingBook = bookDao.findByNameAndIsDeleted(book.getName(), 0);
-        if (existingBook != null) {
+                responseBook.setId(bookUpdatedEventResponse.id);
+                responseBook.setName(bookUpdatedEventResponse.name);
+                responseBook.setAuthor(bookUpdatedEventResponse.author);
+                responseBook.setCategory(bookUpdatedEventResponse.category);
+                responseBook.setIsDeleted(bookUpdatedEventResponse.isDeleted);
+                System.out.println(responseBook);
+            }
 
-            throw new BookAlreadyExistsException("Book with name " + book.getName() + " already exists!");
-        }
-
-        return bookDao.save(book);
-    }
-
-
-    public Book updateBook(Long id, Book bookDetails) throws BookNotFoundException,BookAlreadyExistsException {
-        Book book = bookDao.findById(id)
-                .orElseThrow(() -> new BookNotFoundException(Constants.BOOK_NOT_FOUND + id));
-
-        Book existingBook = bookDao.findByNameAndIsDeleted(bookDetails.getName(), 0);
-        if (existingBook != null) {
-
-            throw new BookAlreadyExistsException("Book with name " + book.getName() + " already exists!");
-        }
-
-        book.setName(bookDetails.getName());
-        book.setAuthor(bookDetails.getAuthor());
-        book.setIsbn(bookDetails.getIsbn());
-        book.setCategory(bookDetails.getCategory());
-
-        return bookDao.save(book);
-    }
-
-    public void deleteBook(Long id) throws BookNotFoundException, BookCannotBeDeletedException {
-
-        Book book = bookDao.findById(id)
-                .orElseThrow(() -> new BookNotFoundException(Constants.BOOK_NOT_FOUND + id));
-
-        List<BookBorrowResponse> bookBorrowResponses = BorrowedBooksServiceImpl.getBorrowedBooksByBookId(id);
-
-        for (BookBorrowResponse bookBorrowResponse : bookBorrowResponses) {
-            if (bookBorrowResponse.getReturnDate() == null && !bookBorrowResponse.getLost()) {
-                throw new BookCannotBeDeletedException("Book is currently borrowed");
+        } catch (Exception e) {
+            if (e.getMessage().contains("Another book with the same name already exists")) {
+                throw new BookAlreadyExistsException("Book with name " + book.getName() + " already exists!");
             }
         }
+        return responseBook;
+    }
 
-        if (book.getIsDeleted() == 1) {
-            return;
+    public void deleteBook(BigInteger id) {
+        try {
+            RemoteFunctionCall<TransactionReceipt> deleteBookFunction = libraryContract.deleteBook(id);
+            deleteBookFunction.send();
+        } catch (Exception e) {
+            if (e.getMessage().contains("Book is currently borrowed")) {
+                throw new BookCannotBeDeletedException(Constants.BOOK_CURRENTLY_BORROWED);
+            }
         }
-
-        book.setIsDeleted(1);
-        bookDao.save(book);
     }
 }

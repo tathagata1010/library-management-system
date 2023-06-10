@@ -5,7 +5,7 @@ import java.time.LocalDate;
 public class UpdateBookBorrowRequest {
     private LocalDate returnDate;
 
-    private Boolean isLost;
+    private boolean isLost;
 
     public LocalDate getReturnDate() {
 
@@ -17,11 +17,11 @@ public class UpdateBookBorrowRequest {
         this.returnDate = returnDate;
     }
 
-    public Boolean getLost() {
+    public boolean getLost() {
         return isLost;
     }
 
-    public void setLost(Boolean lost) {
+    public void setLost(boolean lost) {
         isLost = lost;
     }
 

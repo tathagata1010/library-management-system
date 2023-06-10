@@ -1,190 +1,118 @@
 package com.dev.library.service.BorrowingManagement;
 
-import com.dev.library.dao.BookDao;
-import com.dev.library.dao.BorrowedBooksDao;
-import com.dev.library.dao.BorrowerDao;
-import com.dev.library.entity.Book;
-import com.dev.library.entity.BorrowedBooks;
-import com.dev.library.entity.Borrower;
-import com.dev.library.model.BorrowingManagement.BookBorrowRequest;
 import com.dev.library.model.BorrowingManagement.BookBorrowResponse;
-import com.dev.library.model.BorrowingManagement.UpdateBookBorrowRequest;
-import com.dev.library.service.BookManagement.implementation.BookServiceImpl;
 import com.dev.library.service.BorrowingManagement.implementation.BorrowedBooksServiceImpl;
+import org.junit.jupiter.api.Assertions;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 
+import org.web3j.librarycontract.LibraryContract;
+import org.web3j.protocol.core.RemoteFunctionCall;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
+
+
+import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class BorrowedBooksServiceImplTest {
 
-    @Mock
-    BorrowedBooksDao borrowedBooksDao;
+class BorrowedBooksServiceImpTest {
 
     @Mock
-    BookDao bookDao;
-
-    @Mock
-    private BookBorrowResponse bookBorrowResponse;
-
-    @Mock
-    BorrowerDao borrowerDao;
-
-    @Mock
-    BorrowedBooks borrowedBooks;
-
-    @Mock
-    Book book;
-
-    @Mock
-    Borrower borrower;
-
-    @Mock
-    BookServiceImpl bookServiceImpl;
-
+    private LibraryContract libraryContract;
 
     @InjectMocks
-    BorrowedBooksServiceImpl borrowedBooksServiceImpl;
+    private BorrowedBooksServiceImpl borrowedBooksService;
 
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-        borrowedBooksServiceImpl = new BorrowedBooksServiceImpl( bookServiceImpl,  borrowerDao);
-        bookBorrowResponse.setId(1L);
-        bookBorrowResponse.setBookName("BOOK1");
-        bookBorrowResponse.setBorrowerName("BORROWER1");
-        bookBorrowResponse.setBorrowerPhone("123456789");
-        bookBorrowResponse.setIssueDate(LocalDate.now());
-        bookBorrowResponse.setReturnDate(LocalDate.now());
-        book = new Book(1L, "BOOK1", "AUTHOR", "CATEGORY1", "110001",0);
-        borrower = new Borrower("BORROWER1", "123456789");
-        borrowedBooks = new BorrowedBooks();
-        borrowedBooks.setBook(book);
-        borrowedBooks.setBorrower(borrower);
-        borrowedBooks.setIssueDate(LocalDate.now());
-        borrowedBooks.setReturnDate(LocalDate.now());
 
+        libraryContract = mock(LibraryContract.class);
+        borrowedBooksService=new BorrowedBooksServiceImpl();
+        borrowedBooksService.setLibraryContract(libraryContract);
     }
+
+
+        @Test
+
+        void testGetAllBooksBorrowed() throws Exception {
+
+            RemoteFunctionCall getAllBooksBorrowedFunction = mock(RemoteFunctionCall.class);
+
+            List resultList = new ArrayList<>();
+
+            LibraryContract.BorrowedBookResponse borrowedBookResponseMock = mock(LibraryContract.BorrowedBookResponse.class);
+            borrowedBookResponseMock.id = BigInteger.valueOf(1);
+
+            borrowedBookResponseMock.bookName = "Book Name";
+
+            borrowedBookResponseMock.borrowerName = "Borrower Name";
+
+            borrowedBookResponseMock.borrowerPhoneNumber = "1234567890";
+
+            borrowedBookResponseMock.issueDate = BigInteger.valueOf(1623106800);
+            borrowedBookResponseMock.returnDate = BigInteger.valueOf(0);
+            borrowedBookResponseMock.isLost = false;
+
+            resultList.add(borrowedBookResponseMock);
+
+            when(libraryContract.getBorrowedBooks()).thenReturn(getAllBooksBorrowedFunction);
+            when(getAllBooksBorrowedFunction.send()).thenReturn(resultList);
+
+            List<BookBorrowResponse> borrowedBooks = borrowedBooksService.getAllBooksBorrowed();
+
+
+            // Assert the expected values
+
+            Assertions.assertEquals(1, borrowedBooks.size());
+            BookBorrowResponse borrowedBook = borrowedBooks.get(0);
+            Assertions.assertEquals(BigInteger.valueOf(1), borrowedBook.getId());
+            Assertions.assertEquals(LocalDate.of(2021, 6, 8), borrowedBook.getIssueDate());
+            Assertions.assertEquals("Borrower Name", borrowedBook.getBorrowerName());
+            Assertions.assertEquals("1234567890", borrowedBook.getBorrowerPhone());
+            Assertions.assertEquals("Book Name", borrowedBook.getBookName());
+            Assertions.assertNull(borrowedBook.getReturnDate());
+            Assertions.assertFalse(borrowedBook.getLost());
+
+        }
 
     @Test
-    void getAllBookReports() {
-        List<BookBorrowResponse> bookBorrowResponses = new ArrayList<>();
-        bookBorrowResponses.add(bookBorrowResponse);
-        List<BorrowedBooks> borrowedBooksList = new ArrayList<>();
-        borrowedBooksList.add(borrowedBooks);
-        BookBorrowResponse expectedResponse = new BookBorrowResponse();
-        expectedResponse.setIssueDate(LocalDate.now());
-        expectedResponse.setBorrowerName("BORROWER1");
-        expectedResponse.setBorrowerPhone("123456789");
-        expectedResponse.setBookName("BOOK1");
-        expectedResponse.setReturnDate(LocalDate.now());
-        doReturn(borrowedBooksList).when(borrowedBooksDao).findAllByOrderByIssueDateAsc();
-        List<BookBorrowResponse> responses = borrowedBooksServiceImpl.getAllBookReports();
-        assertThat(responses).isNotEmpty();
-        assertThat(responses).hasSize(1);
-        assertThat(responses.get(0).toString()).isEqualTo(expectedResponse.toString());
+    public void testBookLost() {
+// Arrange
+        BigInteger bookBorrowId = BigInteger.valueOf(1);
+        LibraryContract.BookLostEventResponse bookLostEvent = mock(LibraryContract.BookLostEventResponse.class);
+        TransactionReceipt transactionReceipt = mock(TransactionReceipt.class);
+        List<LibraryContract.BookLostEventResponse> bookLostEvents = new ArrayList<>();
+        bookLostEvents.add(bookLostEvent);
+
+        when(libraryContract.markBookLost(bookBorrowId)).thenReturn(addBorrowBook);
+        when(addBorrowBook.send()).thenReturn(transactionReceipt);
+        when(LibraryContract.getBookLostEvents(transactionReceipt)).thenReturn(bookLostEvents);
+        when(bookLostEvent.getBorrowedBookId()).thenReturn(bookBorrowId);
+        when(bookLostEvent.getBookName()).thenReturn("Book 1");
+        when(bookLostEvent.getBorrowerName()).thenReturn("Borrower 1");
+        when(bookLostEvent.getBorrowerPhoneNumber()).thenReturn("123456789");
+
+// Act
+        BookBorrowResponse result = libraryContract.bookLost(bookBorrowId);
+
+// Assert
+        assertEquals(bookBorrowId, result.getId());
+        assertEquals("Book 1", result.getBookName());
+        assertEquals("Borrower 1", result.getBorrowerName());
+        assertEquals("123456789", result.getBorrowerPhone());
+        assertTrue(result.isLost());
+
+// Additional assertions or verifications if needed
     }
 
-    @Test
-    void getBookReportById() {
-        doReturn(Optional.of(borrowedBooks)).when(borrowedBooksDao).findById(anyLong());
-        BookBorrowResponse expectedResponse = new BookBorrowResponse();
-
-        expectedResponse.setBorrowerName("BORROWER1");
-        expectedResponse.setBorrowerPhone("123456789");
-        expectedResponse.setIssueDate(LocalDate.now());
-        expectedResponse.setBookName("BOOK1");
-        expectedResponse.setReturnDate(LocalDate.now());
-        BookBorrowResponse responses = borrowedBooksServiceImpl.getBookReportById(1L);
-        assertThat(responses.toString()).isNotNull().isEqualTo(expectedResponse.toString());
-
     }
-
-    @Test
-    void addBookReport(){
-        doReturn(book).when(bookServiceImpl).getBookById(anyLong());
-        doReturn(borrower).when(borrowerDao).findByName(anyString());
-        doReturn(borrowedBooks).when(borrowedBooksDao).save(any());
-        BookBorrowResponse expectedResponse = new BookBorrowResponse();
-
-        expectedResponse.setBorrowerName("BORROWER1");
-        expectedResponse.setBorrowerPhone("123456789");
-        expectedResponse.setIssueDate(LocalDate.now());
-        expectedResponse.setBookName("BOOK1");
-        expectedResponse.setReturnDate(LocalDate.now());
-
-        BookBorrowRequest bookBorrowRequest = new BookBorrowRequest();
-        bookBorrowRequest.setBookId(1L);
-        bookBorrowRequest.setBorrowerName("BORROWER1");
-        bookBorrowRequest.setBorrowerPhone("12345678");
-        bookBorrowRequest.setReturnDate(LocalDate.now());
-        bookBorrowRequest.setIssueDate(LocalDate.now());
-
-        BookBorrowResponse response = borrowedBooksServiceImpl.addBookReport(1L,bookBorrowRequest);
-        assertThat(response.toString()).isNotNull().isEqualTo(expectedResponse.toString());
-    }
-
-
-    @Test
-    void updateBookReport(){
-        doReturn(Optional.of(borrowedBooks)).when(borrowedBooksDao).findById(anyLong());
-        BookBorrowResponse expectedResponse = new BookBorrowResponse();
-
-        expectedResponse.setBorrowerName("BORROWER1");
-        expectedResponse.setBorrowerPhone("123456789");
-        expectedResponse.setIssueDate(LocalDate.now());
-        expectedResponse.setBookName("BOOK1");
-        expectedResponse.setReturnDate(LocalDate.now());
-
-        UpdateBookBorrowRequest updateBookBorrowRequest=new UpdateBookBorrowRequest();
-        updateBookBorrowRequest.setReturnDate(LocalDate.now());
-
-        BookBorrowResponse response = borrowedBooksServiceImpl.updateBookReport(1L,1L,updateBookBorrowRequest);
-
-        assertThat(response.toString()).isNotNull().isEqualTo(expectedResponse.toString());
-    }
-
-    @Test
-    void getBorrowedBooksByBookId(){
-        List<BookBorrowResponse> bookBorrowResponses = new ArrayList<>();
-        bookBorrowResponses.add(bookBorrowResponse);
-        List<BorrowedBooks> borrowedBooksList = new ArrayList<>();
-        borrowedBooksList.add(borrowedBooks);
-        BookBorrowResponse expectedResponse = new BookBorrowResponse();
-        expectedResponse.setIssueDate(LocalDate.now());
-        expectedResponse.setBorrowerName("BORROWER1");
-        expectedResponse.setBorrowerPhone("123456789");
-        expectedResponse.setBookName("BOOK1");
-        expectedResponse.setReturnDate(LocalDate.now());
-        doReturn(borrowedBooksList).when(borrowedBooksDao).findByBookId(anyLong());
-
-        List<BookBorrowResponse> borrowedBooksResponse=borrowedBooksServiceImpl.getBorrowedBooksByBookId(1L);
-
-        assertThat(borrowedBooksResponse).isNotEmpty();
-        assertThat(borrowedBooksResponse).hasSize(1);
-        assertThat(borrowedBooksResponse.get(0).toString()).isEqualTo(expectedResponse.toString());
-    }
-
-    @Test
-    void deleteBookReport(){
-        doReturn(Optional.of(borrowedBooks)).when(borrowedBooksDao).findById(anyLong());
-
-        borrowedBooksServiceImpl.deleteBookReport(1L);
-        Mockito.verify(borrowedBooksDao).delete(borrowedBooks);
-
-    }
-
-
-}

@@ -1,46 +1,46 @@
 package com.dev.library.entity;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import javax.persistence.*;
+import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
-@Table(name = "borrowers")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Borrower {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private BigInteger id;
 
-    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "phone_number", nullable = false, unique = true)
     private String phoneNumber;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "borrowers_books",
-            joinColumns = @JoinColumn(name = "borrower_id"),
-            inverseJoinColumns = @JoinColumn(name = "book_id"))
+    private String walletAddress;
+
+    public String getWalletAddress() {
+        return walletAddress;
+    }
+
+    public void setWalletAddress(String walletAddress) {
+        this.walletAddress = walletAddress;
+    }
+
     private Set<Book> books = new HashSet<>();
 
 
     public Borrower() {
     }
 
-    public Borrower(String name, String phoneNumber) {
+
+    public Borrower(BigInteger id, String name, String phoneNumber, String walletAddress, Set<Book> books) {
+        this.id = id;
         this.name = name;
         this.phoneNumber = phoneNumber;
+        this.walletAddress = walletAddress;
+        this.books = books;
     }
 
-
-
-    public Long getId() {
+    public BigInteger getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(BigInteger id) {
         this.id = id;
     }
 

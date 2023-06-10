@@ -1,55 +1,44 @@
 package com.dev.library.entity;
+import org.web3j.abi.datatypes.Type;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.math.BigInteger;
+import java.util.List;
 
-import javax.persistence.*;
 
-@Entity
-@Table(name = "books")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Book {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    @Column(nullable = false)
+    private BigInteger id;
+
     private String name;
 
-    @Column(nullable = false)
     private String author;
 
-    @Column(nullable = false)
     private String category;
 
-    @Column(nullable = false, unique = true)
-    private String isbn;
+    private boolean isDeleted=false;
 
-
-    @Column(nullable = false)
-    @JsonIgnore
-    private Integer isDeleted=0;
+//    private List<String> borrower;
 
     // Constructor
     public Book() {
     }
 
-    public Book(Long id, String name, String author, String category, String isbn, int isDeleted) {
+
+    public Book(BigInteger id, String name, String author, String category, boolean isDeleted) {
         this.id = id;
         this.name = name;
         this.author = author;
         this.category = category;
-        this.isbn = isbn;
         this.isDeleted = isDeleted;
-    }
+      }
 
     // Getters and setters for all fields
-    public Long getId() {
+    public BigInteger getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(BigInteger id) {
         this.id = id;
     }
 
@@ -69,14 +58,6 @@ public class Book {
         this.author = author;
     }
 
-    public String getIsbn() {
-        return isbn;
-    }
-
-    public void setIsbn(String isbn) {
-        this.isbn = isbn;
-    }
-
     public String getCategory() {
         return category;
     }
@@ -85,13 +66,23 @@ public class Book {
         this.category = category;
     }
 
-    public int getIsDeleted() {
+    public boolean getIsDeleted() {
         return isDeleted;
     }
 
-    public void setIsDeleted(int isDeleted) {
+    public void setIsDeleted(boolean isDeleted) {
         this.isDeleted = isDeleted;
     }
+
+
+
+//    public List<String> getBorrower() {
+//        return borrower;
+//    }
+//
+//    public void setBorrower(List<String> borrower) {
+//        this.borrower = borrower;
+//    }
 
     @Override
     public String toString() {
@@ -100,10 +91,8 @@ public class Book {
                 ", name='" + name + '\'' +
                 ", author='" + author + '\'' +
                 ", category='" + category + '\'' +
-                ", isbn='" + isbn + '\'' +
                 ", isDeleted=" + isDeleted +
                 '}';
     }
-
 }
 

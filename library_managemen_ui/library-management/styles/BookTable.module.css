@@ -7,7 +7,7 @@
 
 .tableData {
   padding: 0.5rem;
-  /* text-align: center; */
+  text-align: center;
   border: 1.5px solid #ddd;
 }
 
@@ -82,44 +82,13 @@
   border: 1.5px solid #ddd;
 }
 
-.actionButton {
-  background-color: #0070f3;
-  border: none;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  margin: 0.5rem;
-  cursor: pointer;
-}
-
-.actionButton:hover {
-  background-color: #0062cc;
-}
-
-.actionButtonAdd {
-  display: flex;
-  align-items: center;
-  background-color: #0070f3;
-  border: none;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  margin: 0.5rem;
-  cursor: pointer;
-  margin-left: 12%;
-}
-
-.actionButtonAdd:hover {
-  background-color: #0062cc;
-}
-
 .modal {
   background-color: rgb(231, 229, 229);
   border-radius: 5px;
   max-width: 500px;
   margin: auto;
   padding: 20px;
-  margin-top: 5rem;
+  margin-top: 7.5rem;
 }
 
 .form {
@@ -158,34 +127,4 @@
   font-weight: bold;
   padding: 10px 20px;
   margin-top: 20px;
-}
-
-
-.button {
-  background-color: #0070f3;
-  color: white;
-  border: 1px solid;
-  padding: 8px 16px;
-  border-radius: 5px;
-  font-size: 14px;
-  margin-left: 2%;
-  cursor: pointer;
-}
-
-.button:hover {
-  background-color: #0062cc;
-}
-
-.buttonDelete {
-  background-color: #dc4444;
-  color: #ffffff;
-  border: none;
-  padding: 8px 16px;
-  font-size: 14px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.buttonDelete:hover {
-  background-color: #dc3b3b;
 }

@@ -5,6 +5,7 @@ import { useContextState } from "../context/ContextState";
 import { myAxios } from "../lib/create-axios";
 import Modal from "react-modal";
 import IssueBookModal from "./IssueModalform";
+import { FiEdit } from "react-icons/fi";
 
 const BookTable = () => {
   const { setIsIssue, isIssue } = useContextState();
@@ -17,7 +18,7 @@ const BookTable = () => {
   const [deleteBookId, setDeleteBookId] = useState(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteBook, setDeleteBook] = useState(null);
-  
+
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [formData, setFormData] = useState({
     isbn: "",
@@ -28,6 +29,7 @@ const BookTable = () => {
   const [issueFormData, setIssueFormData] = useState({
     issueDate: "",
     borrowerName: "",
+    walletAddress: "",
     borrowerPhone: "",
     bookId: "",
     isbn: "",
@@ -54,6 +56,7 @@ const BookTable = () => {
     setIssueFormData({
       issueDate: "",
       borrowerName: "",
+      walletAddress: "",
       borrowerPhone: "",
       bookId: book.id,
       isbn: book.isbn,
@@ -145,27 +148,74 @@ const BookTable = () => {
     }
   };
 
-  const handleIssueFormSubmit = (event) => {
+  // const handleIssueFormSubmit = (event) => {
+  //   event.preventDefault();
+  //   const issueBookData = {
+  //     issueDate: issueFormData.issueDate,
+  //     borrowerName: issueFormData.borrowerName,
+  //     walletAddress: issueFormData.walletAddress,
+  //     borrowerPhone: issueFormData.borrowerPhone,
+  //     bookId: issueFormData.bookId,
+  //   };
+  //   const issueBookURI = process.env.NEXT_PUBLIC_BOOK_ISSUE_URI.replace(
+  //     "{issueBookData.bookId}",
+  //     issueBookData.bookId
+  //   );
+  //   myAxios
+  //     .post(issueBookURI, issueBookData)
+  //     .then((response) => {
+  //       setIsIssue(false);
+  //     })
+  //     .catch((error) => {
+  //       const errorCode = error.response.data.errorCode;
+  //       const errorMessage = error.response.data.errorMessage;
+  //       setModalContent(
+  //         <div className={styles.error}>
+  //           <p>
+  //             {errorCode}: {errorMessage}
+  //           </p>
+  //         </div>
+  //       );
+  //     });
+  // };
+
+  const handleIssueFormSubmit = async (event) => {
     event.preventDefault();
-    const issueBookData = {
-      issueDate: issueFormData.issueDate,
-      borrowerName: issueFormData.borrowerName,
-      borrowerPhone: issueFormData.borrowerPhone,
-      bookId: issueFormData.bookId,
-    };
-    if (isNaN(Number(issueBookData.borrowerPhone))) {
-      console.log(issueBookData.borrowerPhone);
-      setModalContent(
-        <div className={styles.error}>
-          Error : Only numbers are allowed in the phone number field.
-        </div>
-      );
-    } else {
+    console.log(issueFormData.issueDate);
+    
+
+    
+    try {
+      const accounts = await ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      const message = "Sign to issue the book";
+      const signature = await ethereum.request({
+        method: "personal_sign",
+        params: [message, accounts[0]],
+      });
+
+      console.log("Signature:", signature);
+
+      console.log("Signer Address:", ethereum.selectedAddress);
+
+      const issueBookData = {
+        issueDate: issueFormData.issueDate,
+        borrowerName: issueFormData.borrowerName,
+        walletAddress: ethereum.selectedAddress,
+        borrowerPhone: issueFormData.borrowerPhone,
+        bookId: issueFormData.bookId,
+      };
+
+      // const headers = {
+      //   Authorization: `Bearer ${signature}`,
+      //   // Other headers if required
+      // };
       const issueBookURI = process.env.NEXT_PUBLIC_BOOK_ISSUE_URI.replace(
         "{issueBookData.bookId}",
         issueBookData.bookId
       );
-      // `books/${issueBookData.bookId}/borrowed`
+
       myAxios
         .post(issueBookURI, issueBookData)
         .then((response) => {
@@ -177,11 +227,14 @@ const BookTable = () => {
           setModalContent(
             <div className={styles.error}>
               <p>
-                 {errorCode}: {errorMessage}
+                {errorCode}: {errorMessage}
               </p>
             </div>
           );
         });
+    } catch (error) {
+      console.error(error);
+      // Handle Metamask connection or signature error
     }
   };
 
@@ -191,7 +244,6 @@ const BookTable = () => {
     if (editBook) {
       const updatedBook = {
         ...editBook,
-        isbn: formData.isbn,
         name: formData.name,
         author: formData.author,
         category: formData.category,
@@ -218,7 +270,6 @@ const BookTable = () => {
         });
     } else {
       const newBook = {
-        isbn: formData.isbn,
         name: formData.name,
         author: formData.author,
         category: formData.category,
@@ -245,7 +296,6 @@ const BookTable = () => {
         });
     }
   };
-
 
   const handleDelete = (book) => {
     setDeleteBook(book);
@@ -286,7 +336,7 @@ const BookTable = () => {
     <div>
       <div className={styles.buttonAndSearchContainer}>
         <button
-          className={styles.actionButtonAdd}
+          className="buttonPrimary buttonMargin"
           onClick={() => setShowModal(true)}
         >
           Add New Book
@@ -300,7 +350,9 @@ const BookTable = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               // onKeyUp={handleSearch}
             />
-            <button onClick={handleSearch}>Search</button>
+            <button onClick={handleSearch} className={styles.buttonPrimary}>
+              Search
+            </button>
           </div>
           {searchError && <p className={styles.error}>{searchError}</p>}
         </div>
@@ -309,7 +361,6 @@ const BookTable = () => {
         <thead>
           <tr>
             <th className={styles.tableHeader}>ID</th>
-            <th className={styles.tableHeader}>ISBN</th>
             <th className={styles.tableHeader}>Name</th>
             <th className={styles.tableHeader}>Author</th>
             <th className={styles.tableHeader}>Category</th>
@@ -320,7 +371,6 @@ const BookTable = () => {
           {books.map((book) => (
             <tr key={book.id}>
               <td className={styles.tableData}>{index++}</td>
-              <td className={styles.tableData}>{book.isbn}</td>
               <td className={styles.tableData}>{book.name}</td>
               <td className={styles.tableData}>{book.author}</td>
               <td className={styles.tableData}>{book.category}</td>
@@ -332,22 +382,22 @@ const BookTable = () => {
                   View
                 </button> */}
                 <button
-                  className={styles.actionButton}
+                  className="buttonPrimary button-dimension"
+                  onClick={() => handleIssue(book)}
+                >
+                  Issue
+                </button>
+                <button
+                  className="buttonSecondary button-dimension"
                   onClick={() => handleEdit(book)}
                 >
                   Edit
                 </button>
                 <button
-                  className={styles.actionButton}
+                  className="buttonTertiary button-dimension"
                   onClick={() => handleDelete(book)}
                 >
                   Delete
-                </button>
-                <button
-                  className={styles.actionButton}
-                  onClick={() => handleIssue(book)}
-                >
-                  Issue
                 </button>
                 {deleteError && deleteBookId === book.id && (
                   <p className={styles.error}>Error: {deleteError}</p>
@@ -369,20 +419,17 @@ const BookTable = () => {
           {deleteError ? (
             <div>
               <p>Delete operation failed because {deleteError} !</p>
-              <button onClick={handleDeleteClose} className={styles.button}>
-                Close
+              <button onClick={handleDeleteClose} className="buttonPrimary">
+                Ok
               </button>
             </div>
           ) : (
             <div>
               <p>Are you sure you want to delete this book?</p>
-              <button
-                onClick={handleDeleteConfirm}
-                className={styles.buttonDelete}
-              >
+              <button onClick={handleDeleteConfirm} className="buttonTertiary">
                 Delete
               </button>
-              <button onClick={handleDeleteClose} className={styles.button}>
+              <button onClick={handleDeleteClose} className="buttonPrimary">
                 Close
               </button>
             </div>
@@ -394,14 +441,14 @@ const BookTable = () => {
           <Modal
             isOpen={showModal}
             onRequestClose={handleCloseModal}
-            contentLabel="Add New Book Modal"
+            contentLabel="Add New Book"
             className={styles.modal}
           >
             <h2 className={styles.formHeading}>
-              {editBook ? "Update Book details" : "Add new Book"}
+              {editBook ? "Update Book Details" : "Add New Book"}
             </h2>
             <form onSubmit={handleFormSubmit} className={styles.form}>
-              <label className={styles.label}>
+              {/* <label className={styles.label}>
                 ISBN:
                 <input
                   type="text"
@@ -411,7 +458,7 @@ const BookTable = () => {
                   required
                   disabled={editBook ? true : false}
                 />
-              </label>
+              </label> */}
               <label className={styles.label}>
                 Name:
                 <input
@@ -460,6 +507,7 @@ const BookTable = () => {
             formData={issueFormData}
             onChange={handleIssueInputChange}
             modalError={modalContent}
+            setModalError={setModalContent}
           />
         </div>
       )}

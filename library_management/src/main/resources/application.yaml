@@ -3,25 +3,10 @@ server:
   servlet:
     context-path: /library
 
-
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5433/library
-    username: postgres
-    password: 246810
-  jpa:
-    show-sql: true
-    hibernate:
-      ddl-auto: 'create-drop'
-      properties:
-        hibernate:
-          dialect: org.hibernate.dialect.PostgreSQLDialect
-  main:
-    allow-circular-references: true
-
 web:
   config:
     allowed-origin-urls:
-      - http://localhost:3000
-      - http://localhost:3001
-      - http://localhost:3002
+      http://localhost:3000,
+      http://localhost:3001,
+      http://localhost:3002
+    max-age: 3600

@@ -2,6 +2,8 @@ package com.dev.library.entity;
 
 import org.junit.jupiter.api.Test;
 
+import java.math.BigInteger;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
  class BookTest {
@@ -10,14 +12,14 @@ import static org.assertj.core.api.Assertions.assertThat;
     void testBookEntity() {
         // Create a new instance of Book
         Book book = new Book();
-        book.setId(1L);
+        book.setId(BigInteger.valueOf(1));
         book.setName("Test Book");
         book.setAuthor("Test Author");
         book.setIsbn("1234567890");
         book.setCategory("Test Category");
 
         // Assert the properties of the book
-        assertThat(book.getId()).isEqualTo(1L);
+        assertThat(book.getId()).isEqualTo(BigInteger.valueOf(1));
         assertThat(book.getName()).isEqualTo("Test Book");
         assertThat(book.getAuthor()).isEqualTo("Test Author");
         assertThat(book.getIsbn()).isEqualTo("1234567890");
@@ -28,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
     void testBookToString() {
         // Create a new instance of Book
         Book book = new Book();
-        book.setId(1L);
+        book.setId(BigInteger.valueOf(1));
         book.setName("Test Book");
         book.setAuthor("Test Author");
         book.setIsbn("1234567890");

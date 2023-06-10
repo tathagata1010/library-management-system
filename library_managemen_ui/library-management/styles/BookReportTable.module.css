@@ -33,7 +33,7 @@
   cursor: pointer;
 }
 
-.actionButtonDisabled {
+.buttonDisabled {
   background-color: #b1d0f3;
   border: none;
   color: rgb(87, 144, 204);
@@ -49,15 +49,14 @@
 }
 
 .dropdownContent {
-    display: none;
+  display: none;
   position: absolute;
   z-index: 1;
   background-color: #f9f9f9;
   min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   border-radius: 4px;
   padding: 0.5rem;
-
 }
 
 .dropdown:hover .dropdownContent {
@@ -109,20 +108,6 @@
   width: 100%;
 }
 
-.form button {
-  background-color: #0070f3;
-  border: none;
-  border-radius: 5px;
-  color: white;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: bold;
-  padding: 10px 20px;
-  margin-top: 20px;
-}
-
-
-
 .dropdown {
   position: relative;
   display: inline-block;
@@ -146,7 +131,7 @@
   left: 0;
   background-color: #f1f1f1;
   min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   padding: 12px 16px;
 }
 
@@ -154,23 +139,19 @@
   display: block;
 }
 
-
-.dropdownMenu{
- min-width:min-content;
- border-radius: 4px;
+.dropdownMenu {
+  min-width: min-content;
+  border-radius: 4px;
   width: 150px;
 }
 
-.dropDown{
- min-width: min-content;
- border-radius: 4px;
- transform: none;
- opacity: 1;
- background-color: red;
+.dropDown {
+  min-width: min-content;
+  border-radius: 4px;
+  transform: none;
+  opacity: 1;
+  background-color: red;
 }
-
-
-
 
 .dropdownButton {
   background-color: white;

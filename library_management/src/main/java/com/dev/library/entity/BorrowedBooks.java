@@ -1,58 +1,47 @@
 package com.dev.library.entity;
 
-import javax.persistence.*;
+import java.math.BigInteger;
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "borrowed_books")
 public class BorrowedBooks {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private BigInteger id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "book_id", nullable = false)
-    private Book book;
+    private BigInteger bookId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "borrower_id", referencedColumnName = "id", nullable = false)
-    private Borrower borrower;
+    private BigInteger borrowerId;
 
-    @Column(name = "issue_date")
     private LocalDate issueDate;
 
-    @Column(name = "return_date")
     private LocalDate returnDate;
 
-    @Column(name = "is_lost")
     private Boolean isLost;
 
     // getters and setters
 
-    public Long getId() {
+    public BigInteger getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(BigInteger id) {
         this.id = id;
     }
 
-    public Book getBook() {
-        return book;
+    public BigInteger getBookId() {
+        return bookId;
     }
 
-    public void setBook(Book book) {
-        this.book = book;
+    public void setBookId(BigInteger bookId) {
+        this.bookId = bookId;
     }
 
 
-    public Borrower getBorrower() {
-        return borrower;
+    public BigInteger getBorrowerId() {
+        return borrowerId;
     }
 
-    public void setBorrower(Borrower borrower) {
-        this.borrower = borrower;
+    public void setBorrowerId(BigInteger borrowerId) {
+        this.borrowerId = borrowerId;
     }
 
     public LocalDate getIssueDate() {
@@ -84,10 +73,10 @@ public class BorrowedBooks {
     }
 
 
-    public BorrowedBooks(Long id, Book book, Borrower borrower, LocalDate issueDate, LocalDate returnDate, Boolean isLost) {
+    public BorrowedBooks(BigInteger id, BigInteger bookId, BigInteger borrowerId, LocalDate issueDate, LocalDate returnDate, Boolean isLost) {
         this.id = id;
-        this.book = book;
-        this.borrower = borrower;
+        this.bookId = bookId;
+        this.borrowerId = borrowerId;
         this.issueDate = issueDate;
         this.returnDate = returnDate;
         this.isLost = isLost;
@@ -99,8 +88,8 @@ public class BorrowedBooks {
     public String toString() {
         return "BorrowedBooks{" +
                 "id=" + id +
-                ", book=" + book +
-                ", borrower=" + borrower +
+                ", book=" + bookId +
+                ", borrower=" + borrowerId +
                 ", issueDate=" + issueDate +
                 ", returnDate=" + returnDate +
                 ", isLost=" + isLost +

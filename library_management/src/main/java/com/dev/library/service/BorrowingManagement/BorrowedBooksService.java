@@ -1,26 +1,19 @@
 package com.dev.library.service.BorrowingManagement;
 
-import com.dev.library.entity.Borrower;
-import com.dev.library.exception.BookAlreadyIssuedException;
-import com.dev.library.exception.BorrowedNotFoundException;
 import com.dev.library.model.BorrowingManagement.BookBorrowRequest;
 import com.dev.library.model.BorrowingManagement.BookBorrowResponse;
 import com.dev.library.model.BorrowingManagement.UpdateBookBorrowRequest;
 
+import java.math.BigInteger;
 import java.util.List;
 
 public interface BorrowedBooksService {
-    List<BookBorrowResponse> getAllBookReports();
-
-    BookBorrowResponse getBookReportById(Long id) throws BorrowedNotFoundException;
+    List<BookBorrowResponse> getAllBooksBorrowed() throws Exception;
 
 
+    BookBorrowResponse addBookBorrow(BigInteger bookId, BookBorrowRequest bookBorrowRequest);
 
-    BookBorrowResponse addBookReport(Long bookId, BookBorrowRequest bookBorrowRequest) throws BookAlreadyIssuedException;
+    BookBorrowResponse updateBorrowed(BigInteger bookId, BigInteger borrowedId, UpdateBookBorrowRequest updateBookBorrowRequest);
 
-    BookBorrowResponse updateBookReport(Long bookId, Long borrowedId, UpdateBookBorrowRequest updateBookBorrowRequest) throws BorrowedNotFoundException;
-
-    void deleteBookReport(Long id) throws BorrowedNotFoundException;
-
-    List<Borrower> getBorrowersByBookId(Long bookId);
+    BookBorrowResponse bookLost(BigInteger bookBorrowId);
 }

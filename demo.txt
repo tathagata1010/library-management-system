@@ -1,0 +1,151 @@
+pragma solidity ^0.8.0;
+
+contract LibraryContract {
+struct Book {
+uint256 id;
+string name;
+string author;
+string category;
+string isbn;
+uint256 isDeleted;
+}
+
+struct BorrowedBooks {
+uint256 id;
+uint256 bookId;
+uint256 borrowerId;
+uint256 issueDate;
+uint256 returnDate;
+bool isLost;
+}
+
+struct Borrower {
+uint256 id;
+string name;
+string phoneNumber;
+uint256[] bookIds;
+string walletAddress;
+}
+
+mapping(uint256 => Book) private books;
+mapping(uint256 => BorrowedBooks) private borrowedBooks;
+mapping(uint256 => Borrower) private borrowers;
+uint256 private bookIdCounter;
+uint256 private borrowedBookIdCounter;
+uint256 private borrowerIdCounter;
+
+function addBook(Book memory _book) external {
+    _book.id = bookIdCounter++;
+    books[bookIdCounter] = _book;
+}
+
+function getBook(uint256 _id) external view returns (Book memory) {
+    require(_id > 0 && _id <= bookIdCounter, "Invalid book ID");
+    Book memory book = books[_id];
+    return book;
+}
+function deleteBook(uint256 _id) external {
+    require(_id > 0 && _id <= bookIdCounter, "Invalid book ID");
+
+    Book memory book = books[_id];
+
+    if (book.isDeleted) {
+        return;
+    }
+
+    // Check if the book is currently borrowed
+    bool isBorrowed = false;
+    for (BorrowedBooks borrowedBook : borrowedBooks) {
+        if (borrowedBook.bookId == _id) {
+            isBorrowed = true;
+            break;
+        }
+    }
+
+    if (isBorrowed) {
+        throw new BookCannotBeDeletedException("Book is currently borrowed");
+    }
+
+    book.isDeleted = true;
+}
+
+function getAllBooks() public view returns (Book[] memory) {
+    return books.values();
+}
+
+function updateBook(uint256 _id, Book memory _book) external {
+    require(_id > 0 && _id <= bookIdCounter, "Invalid book ID");
+
+    Book memory book = books[_id];
+
+    if (book.isDeleted) {
+        throw new BookCannotBeUpdatedException("Book is deleted");
+    }
+
+    book.name = _book.name;
+    book.author = _book.author;
+    book.isbn = _book.isbn;
+}
+
+function borrowBook(
+uint256 _bookId,
+uint256 _borrowerId,
+uint256 _issueDate,
+uint256 _returnDate
+) external {
+require(_bookId > 0 && _bookId <= bookIdCounter, "Invalid book ID");
+require(
+_borrowerId > 0 && _borrowerId <= borrowerIdCounter,
+"Invalid borrower ID"
+);
+
+borrowedBookIdCounter++;
+borrowedBooks[borrowedBookIdCounter] = BorrowedBooks(
+borrowedBookIdCounter,
+_bookId,
+_borrowerId,
+_issueDate,
+_returnDate,
+false
+);
+
+borrowers[_borrowerId].bookIds.push(borrowedBookIdCounter);
+}
+
+function returnBook(uint256 _borrowedBookId) external {
+require(
+_borrowedBookId > 0 && _borrowedBookId <= borrowedBookIdCounter,
+"Invalid borrowed book ID"
+);
+BorrowedBooks storage borrowedBook = borrowedBooks[_borrowedBookId];
+borrowedBook.returnDate = block.timestamp;
+}
+
+function addBorrower(string memory _name, string memory _phoneNumber, string memory _walletAddress)
+external
+{
+borrowerIdCounter++;
+borrowers[borrowerIdCounter] = Borrower(
+borrowerIdCounter,
+_name,
+_phoneNumber,
+new uint256[](0),
+_walletAddress
+);
+}
+
+function getBorrower(uint256 _id)
+external
+view
+returns (
+string memory,
+string memory,
+uint256[] memory,
+string memory
+)
+{
+require(_id > 0 && _id <= borrowerIdCounter, "Invalid borrower ID");
+Borrower memory borrower = borrowers[_id];
+return (borrower.name, borrower.phoneNumber, borrower.bookIds, borrower.walletAddress);
+}
+}

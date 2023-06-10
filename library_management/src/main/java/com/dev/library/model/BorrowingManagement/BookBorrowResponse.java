@@ -1,21 +1,22 @@
 package com.dev.library.model.BorrowingManagement;
 
+import java.math.BigInteger;
 import java.time.LocalDate;
 
 public class BookBorrowResponse {
 
-    private Long id;
+    private BigInteger id;
     private LocalDate issueDate;
-    private String borrowerName;
+    private String borrowerAddress;
     private String borrowerPhone;
     private String bookName;
     private LocalDate returnDate;
     private Boolean isLost;
 
-    public BookBorrowResponse(Long id, LocalDate issueDate, String borrowerName, String borrowerPhone, String bookName, LocalDate returnDate, Boolean isLost) {
+    public BookBorrowResponse(BigInteger id, LocalDate issueDate, String borrowerAddress, String borrowerPhone, String bookName, LocalDate returnDate, Boolean isLost) {
         this.id = id;
         this.issueDate = issueDate;
-        this.borrowerName = borrowerName;
+        this.borrowerAddress = borrowerAddress;
         this.borrowerPhone = borrowerPhone;
         this.bookName = bookName;
         this.returnDate = returnDate;
@@ -29,11 +30,11 @@ public class BookBorrowResponse {
     // getters and setters for each field
 
 
-    public Long getId() {
+    public BigInteger getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(BigInteger id) {
         this.id = id;
     }
 
@@ -45,12 +46,12 @@ public class BookBorrowResponse {
         this.issueDate = issueDate;
     }
 
-    public String getBorrowerName() {
-        return borrowerName;
+    public String getBorrowerAddress() {
+        return borrowerAddress;
     }
 
-    public void setBorrowerName(String borrowerName) {
-        this.borrowerName = borrowerName;
+    public void setBorrowerAddress(String borrowerAddress) {
+        this.borrowerAddress = borrowerAddress;
     }
 
     public String getBorrowerPhone() {
@@ -92,7 +93,7 @@ public class BookBorrowResponse {
         return "BookBorrowResponse{" +
                 "id=" + id +
                 ", issueDate=" + issueDate +
-                ", borrowerName='" + borrowerName + '\'' +
+                ", borrowerName='" + borrowerAddress + '\'' +
                 ", borrowerPhone='" + borrowerPhone + '\'' +
                 ", bookName='" + bookName + '\'' +
                 ", returnDate=" + returnDate +

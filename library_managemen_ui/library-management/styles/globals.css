@@ -28,6 +28,58 @@ a {
   font-weight: bold;
 }
 
+.button-dimension{
+  height: 35px;
+  width: 75px;
+}
+
+.buttonPrimary {
+  background-color: #0070f3;
+  color: white;
+  border: 1px solid;
+   padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin: 0.5rem;
+  cursor: pointer;
+}
+
+.buttonMargin{
+margin-left: 12%;
+}
+
+.buttonPrimary:hover {
+  background-color: #0062cc;
+}
+
+.buttonSecondary {
+  background-color: rgb(231, 147, 37);
+  color: white;
+  border: 1px solid;
+   padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin: 0.5rem;
+  cursor: pointer;
+}
+
+.buttonSecondary:hover {
+  background-color: rgb(255, 147, 7);
+}
+
+
+.buttonTertiary {
+  background-color: #dc4444;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  margin-left: 2%;
+  cursor: pointer;
+}
+
+.buttonTertiary:hover {
+  background-color: #cb2f2f;
+}
+
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;

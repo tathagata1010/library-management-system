@@ -8,12 +8,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class LibraryManagementApplication {
 
-	private static final Logger logger = LoggerFactory.getLogger(LibraryManagementApplication.class);
-
 
 	public static void main(String[] args) {
 		SpringApplication.run(LibraryManagementApplication.class, args);
-		logger.info("hello");
 	}
 
 }

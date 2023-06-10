@@ -3,18 +3,18 @@ package com.dev.library.model.BorrowingManagement;
 import java.time.LocalDate;
 
 public class BookBorrowRequest {
-    private String borrowerName;
     private String borrowerPhone;
+    private String walletAddress;
     private Long bookId;
     private LocalDate returnDate;
     private LocalDate issueDate;
 
-    public String getBorrowerName() {
-        return borrowerName;
+    public String getWalletAddress() {
+        return walletAddress;
     }
 
-    public void setBorrowerName(String borrowerName) {
-        this.borrowerName = borrowerName;
+    public void setWalletAddress(String borrowerAddress) {
+        this.walletAddress = borrowerAddress;
     }
 
     public String getBorrowerPhone() {
@@ -52,8 +52,8 @@ public class BookBorrowRequest {
     @Override
     public String toString() {
         return "BookBorrowRequest{" +
-                "borrowerName='" + borrowerName + '\'' +
                 ", borrowerPhone='" + borrowerPhone + '\'' +
+                ", borrowerAddress='" + walletAddress + '\'' +
                 ", bookId=" + bookId +
                 ", returnDate=" + returnDate +
                 ", issueDate=" + issueDate +

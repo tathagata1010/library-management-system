@@ -9,7 +9,29 @@ const IssueBookModal = ({
   formData,
   onChange,
   modalError,
+  setModalError,
 }) => {
+  const validatePhoneNumber = (phoneNumber) => {
+    // Regular expression pattern for Indian phone number (10 digits)
+    const phonePattern = /^[6-9]\d{9}$/;
+    return phonePattern.test(phoneNumber);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const { borrowerPhone } = formData;
+    if (!validatePhoneNumber(borrowerPhone)) {
+      // Display error message if phone number is invalid
+      setModalError(
+        <div className={styles.error}>
+          Invalid phone number. Please enter a valid phone number.
+        </div>
+      );
+    } else {
+      onSubmit(e);
+    }
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -17,21 +39,8 @@ const IssueBookModal = ({
       contentLabel="Issue Book"
       className={styles.modal}
     >
-      <h2 className={styles.formHeading}>Issue Book Modal</h2>
-
-      <form onSubmit={onSubmit} className={styles.form}>
-        <label className={styles.label}>
-          ISBN:
-          <input
-            type="text"
-            name="bookId"
-            onChange={onChange}
-            required
-            value={formData.isbn}
-            disabled={true}
-          />
-        </label>
-
+      <h2 className={styles.formHeading}>Issue Book</h2>
+      <form onSubmit={handleSubmit} className={styles.form}>
         <label className={styles.label}>
           Issue Date
           <input
@@ -40,31 +49,20 @@ const IssueBookModal = ({
             value={formData.issueDate}
             onChange={onChange}
             required
-            // min={new Date().toISOString().split("T")[0]}
+            max={new Date().toISOString().split("T")[0]}
           />
         </label>
+        
         {/* <label className={styles.label}>
-          Book Id:
+          Borrower Wallet Address:
           <input
             type="text"
-            name="bookId"
+            name="walletAddress"
             onChange={onChange}
             required
-            value={formData.bookId}
+            value={formData.walletAddress}
           />
         </label> */}
-
-        <label className={styles.label}>
-          Borrower Name:
-          <input
-            type="text"
-            name="borrowerName"
-            onChange={onChange}
-            required
-            value={formData.borrowerName}
-          />
-        </label>
-
         <label className={styles.label}>
           Borrower Phone Number:
           <input
@@ -75,11 +73,9 @@ const IssueBookModal = ({
             value={formData.borrowerPhone}
           />
         </label>
-
-        <button type="submit">Issue book</button>
+        <button type="submit">Issue Book</button>
       </form>
-
-      {modalError && <p> {modalError} </p>}
+      {modalError && <p>{modalError}</p>}
     </Modal>
   );
 };

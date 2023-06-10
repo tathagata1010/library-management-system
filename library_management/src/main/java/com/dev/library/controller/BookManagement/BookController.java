@@ -1,10 +1,11 @@
 package com.dev.library.controller.BookManagement;
 
 import com.dev.library.entity.Book;
-import com.dev.library.exception.BookAlreadyExistsException;
 import com.dev.library.exception.BookCannotBeDeletedException;
 import com.dev.library.exception.BookNotFoundException;
+//import com.dev.library.service.BookManagement.implementation.BookServiceImpl;
 import com.dev.library.service.BookManagement.implementation.BookServiceImpl;
+import com.dev.library.utility.Constants;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -15,16 +16,28 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.web3j.crypto.Credentials;
+import org.web3j.librarycontract.LibraryContract;
+import org.web3j.librarycontract_updated.LibraryContract_updated;
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.methods.response.EthBlock;
+import org.web3j.protocol.http.HttpService;
+import org.web3j.tx.gas.ContractGasProvider;
+import org.web3j.tx.gas.StaticGasProvider;
 
+import java.math.BigInteger;
 import java.util.List;
 
 @RestController
 @RequestMapping("/books")
 public class BookController {
 
-    private final BookServiceImpl bookServiceImpl;
+//    private final BookServiceImpl bookServiceImpl;
 
-    public BookController(BookServiceImpl bookServiceImpl) {
+    private final BookServiceImpl bookServiceImpl;
+    public BookController( BookServiceImpl bookServiceImpl) {
+//        this.bookServiceImpl = bookServiceImpl;
         this.bookServiceImpl = bookServiceImpl;
     }
 
@@ -63,7 +76,8 @@ public class BookController {
             @ApiResponse(responseCode = "404", description = "No books found", content = @Content),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
-    public ResponseEntity<List<Book>> getAllBooks() {
+    public ResponseEntity<List<Book>> getAllBooks() throws Exception {
+//       List<Book> books= bookServiceImpl.getAllBooks();
        List<Book> books= bookServiceImpl.getAllBooks();
         return new ResponseEntity<>(books, HttpStatus.OK);
     }
@@ -95,7 +109,8 @@ public class BookController {
             @ApiResponse(responseCode = "404", description = "Book not found", content = @Content),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
-    public ResponseEntity<Book> getBookByName(@RequestParam(name = "name", defaultValue = "Mordern Physics") String name) {
+    public ResponseEntity<Book> getBookByName(@RequestParam(name = "name", defaultValue = "Mordern Physics") String name) throws Exception {
+//        Book book= bookServiceImpl.getBookByName(name);
         Book book= bookServiceImpl.getBookByName(name);
         return new ResponseEntity<>(book, HttpStatus.OK);
     }
@@ -140,7 +155,8 @@ public class BookController {
                                     "    }"
                     )
             )
-    ) @RequestBody Book book) throws BookAlreadyExistsException {
+    ) @RequestBody Book book) throws Exception {
+//        Book bookResponse= bookServiceImpl.addBook(book);
         Book bookResponse= bookServiceImpl.addBook(book);
         return new ResponseEntity<>(bookResponse, HttpStatus.OK);
     }
@@ -168,13 +184,38 @@ public class BookController {
             @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
-    public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book book) {
+    public ResponseEntity<Book> updateBook(@PathVariable BigInteger id, @RequestBody Book book) throws Exception {
 
         Book bookResponse= bookServiceImpl.updateBook(id, book);
         return new ResponseEntity<>(bookResponse, HttpStatus.OK);
 
     }
 
+    @PostMapping("/deploy")
+    public ResponseEntity<String> getWalletBalance() throws Exception {
+        Web3j web3 = Web3j.build(new HttpService("http://127.0.0.1:7545"));
+
+        Credentials credentials = Credentials.create(Constants.CREDENTIAL);
+
+        EthBlock block = web3.ethGetBlockByNumber(
+                DefaultBlockParameterName.LATEST,
+                false
+        ).send();
+
+        ContractGasProvider contractGasProvider = new StaticGasProvider(
+                web3.ethGasPrice().send().getGasPrice(),
+                block.getBlock().getGasLimit()
+        );
+
+        LibraryContract_updated libraryContract= LibraryContract_updated.deploy( web3,
+                credentials,
+                contractGasProvider
+                ).send();
+
+
+        return ResponseEntity.ok().body(libraryContract.getContractAddress());
+
+    }
 
     @DeleteMapping("/{id}")
     @Tag(name = "Books Controller")
@@ -184,7 +225,7 @@ public class BookController {
             @ApiResponse(responseCode = "404", description = "Book not found", content = @Content),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
-    public ResponseEntity<Void> deleteBook(@PathVariable Long id) throws BookNotFoundException, BookCannotBeDeletedException {
+    public ResponseEntity<Void> deleteBook(@PathVariable BigInteger id) throws BookNotFoundException, BookCannotBeDeletedException {
         bookServiceImpl.deleteBook(id);
         return ResponseEntity.noContent().build();
     }
