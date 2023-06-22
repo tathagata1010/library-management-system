@@ -15,7 +15,7 @@ contract LibraryContract_updated {
 
     mapping(string => Book) private bookByName;
 
-    mapping(uint256 => bool) private isBorrowed;
+
 
 
 
@@ -56,6 +56,8 @@ contract LibraryContract_updated {
 
         uint256 bookId;
 
+        string borrowerName;
+
         string bookName;
 
         address borrowerAddress;
@@ -77,28 +79,24 @@ contract LibraryContract_updated {
 
     event BookDeleted(uint256 indexed id);
 
-    event BookBorrowed(uint256 indexed borrowedBookId, uint256 bookId, string bookName,address indexed borrower, uint256 issueDate, string borrowerPhoneNumber);
+    event BookBorrowed(uint256 indexed borrowedBookId, uint256 bookId, string borrowerName, string bookName, address indexed borrower, uint256 issueDate, string borrowerPhoneNumber);
 
-    event BookReturned(uint256 indexed borrowedBookId, string bookName, address borrowerAddress, string borrowerPhoneNumber, uint256 issueDate, uint256 returnDate);
+    event BookReturned(uint256 indexed borrowedBookId, string bookName, string borrowerName, address borrowerAddress, string borrowerPhoneNumber, uint256 issueDate, uint256 returnDate);
 
-    event BookLost(uint256 indexed borrowedBookId, string bookName, address borrowerAddress, string borrowerPhoneNumber, uint256 issueDate, bool lost);
+    event BookLost(uint256 indexed borrowedBookId, string bookName, string borrowerName, address borrowerAddress, string borrowerPhoneNumber, uint256 issueDate, bool lost);
 
 
+    function addBook(string calldata _name, string calldata author, string calldata category, bool isDeleted) external onlyOwner {
 
-    function addBook(string memory name, string memory author, string memory category, bool isDeleted) external onlyOwner {
-
+        require(keccak256(bytes(bookByName[_name].name)) != keccak256(bytes(_name)) && !bookByName[_name].isDeleted, "Another book with the same name already exists");
         uint256 id = books.length;
-
-        books.push(Book(id, name, author, category, isDeleted));
-
-        bookByName[name] = books[id];
-
-        emit BookAdded(id, name, author, category, isDeleted);
+        books.push(Book(id, _name, author, category, isDeleted));
+        bookByName[_name] = books[id];
+        emit BookAdded(id, _name, author, category, isDeleted);
 
     }
 
-
-    function updateBook(uint256 _id, string memory name, string memory author, string memory category) external onlyOwner {
+    function updateBook(uint256 _id, string calldata name, string calldata author, string calldata category) external onlyOwner {
 
         require(_id < books.length, "Invalid book ID");
         require(bookByName[name].id == 0 || (bookByName[name].id == _id && !bookByName[name].isDeleted), "Another book with the same name already exists");
@@ -117,15 +115,15 @@ contract LibraryContract_updated {
     }
 
 
-     function getBook(uint256 id) public view returns (Book memory) {
+    function getBook(uint256 id) public view returns (Book memory) {
 
-         require(id < books.length, "Invalid book ID");
+        require(id < books.length, "Invalid book ID");
 
-         return books[id];
+        return books[id];
 
-     }
+    }
 
-    function getBookByName(string memory _name) external view returns (Book memory) {
+    function getBookByName(string calldata _name) external view returns (Book memory) {
 
         require(!bookByName[_name].isDeleted, "The book with the given name is deleted.");
 
@@ -140,15 +138,35 @@ contract LibraryContract_updated {
 
 
     function deleteBook(uint256 id) public onlyOwner {
-
         require(id < books.length, "Invalid book ID");
-        require(!isBorrowed[id],"Book is currently borrowed");
+    bool canDelete = true;
+        uint256 borrowerCount = 0;
+        uint256 lostOrReturnedCount = 0;
+
+        for (uint256 i = 0; i < borrowedBooks.length; i++) {
+            if (borrowedBooks[i].bookId == id) {
+                borrowerCount++;
+                if (!borrowedBooks[i].isLost && borrowedBooks[i].returnDate == 0) {
+                    canDelete = false;
+                    break;
+                } else {
+                    lostOrReturnedCount++;
+                }
+            }
+        }
+
+        canDelete = canDelete && (borrowerCount == lostOrReturnedCount);
+
+        require(canDelete, "Book cannot be deleted");
+
         books[id].isDeleted = true;
-        bookByName[books[id].name]=books[id];
+        bookByName[books[id].name].isDeleted = books[id];
+
     }
 
 
-    function borrowBook(uint256 bookId, string memory borrowerPhoneNumber, address borrowerAddress, uint256 issueDate) public {
+
+    function borrowBook(uint256 bookId, string calldata borrowerName, string calldata borrowerPhoneNumber, address borrowerAddress, uint256 issueDate) public {
 
         require(bookId < books.length, "Invalid book ID");
 
@@ -156,43 +174,45 @@ contract LibraryContract_updated {
 
         uint256 borrowedBookId = borrowedBooks.length;
 
-        borrowedBooks.push(BorrowedBook(borrowedBookId, bookId, books[bookId].name ,borrowerAddress, issueDate, 0, false, borrowerPhoneNumber));
+        borrowedBooks.push(BorrowedBook(borrowedBookId, bookId, borrowerName, books[bookId].name, borrowerAddress, issueDate, 0, false, borrowerPhoneNumber));
 
-        isBorrowed[bookId] = true;
 
         bookBorrowers[bookId][borrowerAddress] = true;
 
-        emit BookBorrowed(borrowedBookId, bookId, books[bookId].name ,borrowerAddress, issueDate, borrowerPhoneNumber);
+        emit BookBorrowed(borrowedBookId, bookId, borrowerName, books[bookId].name, borrowerAddress, issueDate, borrowerPhoneNumber);
 
     }
 
 
-    function returnBook(uint256 borrowedBookId, uint256 returnDate) public {
+    function returnBook(uint256 borrowedBookId, uint256 returnDate, address _borrowerAddress) public {
 
         require(borrowedBookId < borrowedBooks.length, "Invalid borrowed book ID");
 
         BorrowedBook storage borrowedBook = borrowedBooks[borrowedBookId];
+
+        require(_borrowerAddress == borrowedBook.borrowerAddress, "Book not borrowed from this address");
 
         borrowedBook.returnDate = returnDate;
 
-        isBorrowed[borrowedBook.bookId] = false;
-
         bookBorrowers[borrowedBook.bookId][borrowedBook.borrowerAddress] = false;
 
-        emit BookReturned(borrowedBookId,borrowedBook.bookName,borrowedBook.borrowerAddress,borrowedBook.borrowerPhoneNumber,borrowedBook.issueDate ,returnDate);
+        emit BookReturned(borrowedBookId, borrowedBook.bookName, borrowedBook.borrowerName, borrowedBook.borrowerAddress, borrowedBook.borrowerPhoneNumber, borrowedBook.issueDate, returnDate);
 
     }
 
 
-    function reportLost(uint256 borrowedBookId) public {
+    function reportLost(uint256 borrowedBookId, address _borrowerAddress) public {
 
         require(borrowedBookId < borrowedBooks.length, "Invalid borrowed book ID");
 
         BorrowedBook storage borrowedBook = borrowedBooks[borrowedBookId];
 
+        require(_borrowerAddress == borrowedBook.borrowerAddress, "Book not borrowed from this address");
+
         borrowedBook.isLost = true;
 
-        emit BookLost( borrowedBookId,borrowedBook.bookName,borrowedBook.borrowerAddress,borrowedBook.borrowerPhoneNumber,borrowedBook.issueDate, true );
+
+        emit BookLost(borrowedBookId, borrowedBook.bookName, borrowedBook.borrowerName, borrowedBook.borrowerAddress, borrowedBook.borrowerPhoneNumber, borrowedBook.issueDate, true);
 
     }
 

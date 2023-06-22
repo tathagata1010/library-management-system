@@ -8,27 +8,20 @@ public class BookBorrowResponse {
     private BigInteger id;
     private LocalDate issueDate;
     private String borrowerAddress;
+    private String borrowerName;
     private String borrowerPhone;
     private String bookName;
     private LocalDate returnDate;
     private Boolean isLost;
 
-    public BookBorrowResponse(BigInteger id, LocalDate issueDate, String borrowerAddress, String borrowerPhone, String bookName, LocalDate returnDate, Boolean isLost) {
-        this.id = id;
-        this.issueDate = issueDate;
-        this.borrowerAddress = borrowerAddress;
-        this.borrowerPhone = borrowerPhone;
-        this.bookName = bookName;
-        this.returnDate = returnDate;
-        this.isLost = isLost;
+
+    public String getBorrowerName() {
+        return borrowerName;
     }
 
-    public BookBorrowResponse() {
-
+    public void setBorrowerName(String borrowerName) {
+        this.borrowerName = borrowerName;
     }
-
-    // getters and setters for each field
-
 
     public BigInteger getId() {
         return id;

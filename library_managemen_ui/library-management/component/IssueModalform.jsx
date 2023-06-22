@@ -1,4 +1,4 @@
-import React from "react";
+import { useState, useEffect } from "react";
 import Modal from "react-modal";
 import styles from "../styles/IssueModalForm.module.css";
 
@@ -10,9 +10,9 @@ const IssueBookModal = ({
   onChange,
   modalError,
   setModalError,
+  isLoading,
 }) => {
   const validatePhoneNumber = (phoneNumber) => {
-    // Regular expression pattern for Indian phone number (10 digits)
     const phonePattern = /^[6-9]\d{9}$/;
     return phonePattern.test(phoneNumber);
   };
@@ -21,7 +21,6 @@ const IssueBookModal = ({
     e.preventDefault();
     const { borrowerPhone } = formData;
     if (!validatePhoneNumber(borrowerPhone)) {
-      // Display error message if phone number is invalid
       setModalError(
         <div className={styles.error}>
           Invalid phone number. Please enter a valid phone number.
@@ -52,17 +51,16 @@ const IssueBookModal = ({
             max={new Date().toISOString().split("T")[0]}
           />
         </label>
-        
-        {/* <label className={styles.label}>
-          Borrower Wallet Address:
+        <label className={styles.label}>
+          Borrower Name
           <input
             type="text"
-            name="walletAddress"
+            name="borrowerName"
+            value={formData.borrowerName}
             onChange={onChange}
             required
-            value={formData.walletAddress}
           />
-        </label> */}
+        </label>
         <label className={styles.label}>
           Borrower Phone Number:
           <input
@@ -73,7 +71,9 @@ const IssueBookModal = ({
             value={formData.borrowerPhone}
           />
         </label>
-        <button type="submit">Issue Book</button>
+        <button type="submit">
+          {isLoading ? "Processing..." : "Issue Book"}
+        </button>
       </form>
       {modalError && <p>{modalError}</p>}
     </Modal>

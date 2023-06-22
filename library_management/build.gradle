@@ -20,14 +20,11 @@ solidity {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'junit:junit:4.13.1'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.5.12'
 }
 
-//jar {
-//	enabled = true
-//	exclude '**/*.yaml'
-//}
 
 tasks.named('test') {
 	useJUnitPlatform()

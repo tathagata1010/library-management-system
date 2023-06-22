@@ -15,5 +15,5 @@ public interface BorrowedBooksService {
 
     BookBorrowResponse updateBorrowed(BigInteger bookId, BigInteger borrowedId, UpdateBookBorrowRequest updateBookBorrowRequest);
 
-    BookBorrowResponse bookLost(BigInteger bookBorrowId);
+    BookBorrowResponse bookLost(BigInteger bookBorrowId,String borrowerAddress);
 }

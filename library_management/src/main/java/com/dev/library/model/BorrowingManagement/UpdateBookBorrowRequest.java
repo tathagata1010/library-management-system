@@ -7,17 +7,18 @@ public class UpdateBookBorrowRequest {
 
     private boolean isLost;
 
-    public LocalDate getReturnDate() {
+    private String borrowerAddress;
 
+
+    public LocalDate getReturnDate() {
         return returnDate;
     }
 
     public void setReturnDate(LocalDate returnDate) {
-
         this.returnDate = returnDate;
     }
 
-    public boolean getLost() {
+    public boolean isLost() {
         return isLost;
     }
 
@@ -25,11 +26,20 @@ public class UpdateBookBorrowRequest {
         isLost = lost;
     }
 
+    public String getBorrowerAddress() {
+        return borrowerAddress;
+    }
+
+    public void setBorrowerAddress(String borrowerAddress) {
+        this.borrowerAddress = borrowerAddress;
+    }
+
     @Override
     public String toString() {
         return "UpdateBookBorrowRequest{" +
                 "returnDate=" + returnDate +
                 ", isLost=" + isLost +
+                ", borrowerAddress='" + borrowerAddress + '\'' +
                 '}';
     }
 }

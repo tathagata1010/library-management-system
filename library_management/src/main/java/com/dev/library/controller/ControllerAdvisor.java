@@ -63,6 +63,23 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         log.error(ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
-    
+
+    @ExceptionHandler(NotLibrarianException.class)
+    public ResponseEntity<Map<String, String>> handleNotLibrarianException(NotLibrarianException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put(Constants.ERROR_CODE, "ONLY_LIBRARIAN_HAS_PERMISSION");
+        errorResponse.put(Constants.ERROR_MESSAGE,  ex.getMessage());
+        log.error(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
+    @ExceptionHandler(BorrowerNotMatch.class)
+    public ResponseEntity<Map<String, String>> handleBorrowerNotMatch(BorrowerNotMatch ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put(Constants.ERROR_CODE, "BORROWER_NOT_MATCH");
+        errorResponse.put(Constants.ERROR_MESSAGE,  ex.getMessage());
+        log.error(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
 
 }

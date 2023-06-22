@@ -6,17 +6,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.web3j.librarycontract.LibraryContract;
+import org.mockito.MockitoAnnotations;
+import org.web3j.librarycontract_updated.LibraryContract_updated;
 import org.web3j.protocol.core.RemoteFunctionCall;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
-import org.web3j.tx.Contract;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 
@@ -24,7 +23,7 @@ class BookServiceImplTest {
 
 
     @Mock
-    private LibraryContract libraryContract;
+    private LibraryContract_updated libraryContract;
 
     @Mock
     private BookServiceImpl bookService;
@@ -32,98 +31,88 @@ class BookServiceImplTest {
 
     @BeforeEach
     void setUp() {
-
-        libraryContract = mock(LibraryContract.class);
-        bookService=new BookServiceImpl();
+        MockitoAnnotations.openMocks(this);
+        libraryContract = mock(LibraryContract_updated.class);
+        bookService = new BookServiceImpl();
         bookService.setLibraryContract(libraryContract);
 
     }
 
 
     @Test
-    public void testAddBook() throws Exception {
-// Create a book object
+    void testAddBook() throws Exception {
+
         Book book = new Book();
-        book.setName("The Book 1");
+        book.setName("example Book");
         book.setAuthor("John Doe");
         book.setCategory("Fiction");
-        book.setIsbn("1234567890");
 
-        TransactionReceipt transactionReceipt = mock(TransactionReceipt.class);
-// Mock the result of getAllBooksFunction.send()
-        List<LibraryContract.Book> mockedResult = new ArrayList<>();
-        LibraryContract.Book book1 = new LibraryContract.Book(BigInteger.valueOf(1), "The Book", "John Doe", "Fiction", "123456789", false);
-        mockedResult.add(book1);
+        LibraryContract_updated.Book book1 = new LibraryContract_updated.Book(BigInteger.valueOf(1),"ample", book.getAuthor(), book.getCategory(), false);
+        List<LibraryContract_updated.Book> books = new ArrayList<>();
+        books.add(book1);
+        RemoteFunctionCall getAllBooksFunction = mock(RemoteFunctionCall.class);
+        when(libraryContract.getAllBooks()).thenReturn(getAllBooksFunction);
+        when(getAllBooksFunction.send()).thenReturn(books);
 
+        List bookAddedEvents = new ArrayList<>();
+        LibraryContract_updated.BookAddedEventResponse bookAddedEventResponse = mock(LibraryContract_updated.BookAddedEventResponse.class);
+        bookAddedEventResponse.id = BigInteger.valueOf(1);
+        bookAddedEventResponse.name = "ample Book";
+        bookAddedEventResponse.author = "John Doe";
+        bookAddedEventResponse.category = "Fiction";
+        bookAddedEventResponse.isDeleted = false;
+        bookAddedEvents.add(bookAddedEventResponse);
 
-//        LibraryContract libraryContractSpy = mock(libraryContract);
-        List<Contract.EventValuesWithLog> valueList = new ArrayList<>();
-        Contract.EventValuesWithLog eventValues = mock(Contract.EventValuesWithLog.class);
-
-        valueList.add(eventValues);
-        doReturn(valueList).when(libraryContract).getBookAddedEvents(transactionReceipt);
-
-// Mock the book details in the eventValues
-//        BigInteger id = BigInteger.valueOf(1);
-//        String name = "The Book";
-//        String author = "John Doe";
-//        String category = "Fiction";
-//        String isbn = "1234567890";
-//        boolean isDeleted = false;
-//        when(eventValues.getIndexedValues().get(0).getValue()).thenReturn(id);
-//        when(eventValues.getNonIndexedValues().get(0).getValue()).thenReturn(name);
-//        when(eventValues.getNonIndexedValues().get(1).getValue()).thenReturn(author);
-//        when(eventValues.getNonIndexedValues().get(2).getValue()).thenReturn(category);
-//        when(eventValues.getNonIndexedValues().get(3).getValue()).thenReturn(isbn);
-//        when(eventValues.getNonIndexedValues().get(4).getValue()).thenReturn(isDeleted);
-
-
-        // Mock the result of addBook function call
         RemoteFunctionCall<TransactionReceipt> addBookFunction = mock(RemoteFunctionCall.class);
-//        TransactionReceipt transactionReceipt = mock(TransactionReceipt.class);
+        TransactionReceipt transactionReceipt = mock(TransactionReceipt.class);
+        when(libraryContract.addBook(anyString(), anyString(), anyString(), anyBoolean())).thenReturn( addBookFunction);
+        System.out.println(addBookFunction);
         when(addBookFunction.send()).thenReturn(transactionReceipt);
 
-// Mock the libraryContract.addBook method to return the addBookFunction
-        when(libraryContract.addBook(any(), any(), any(), any(), anyBoolean()))
-                .thenReturn(addBookFunction);
+        when(LibraryContract_updated.getBookAddedEvents(transactionReceipt)).thenReturn(bookAddedEvents);
 
+        Book addedBook = bookService.addBook(book);
 
-        Book responseBook = bookService.addBook(book);
+        assertEquals(BigInteger.valueOf(1L), addedBook.getId());
+        assertEquals("example Book", addedBook.getName());
+        assertEquals("John Doe", addedBook.getAuthor());
+        assertEquals("Fiction", addedBook.getCategory());
+        assertFalse(addedBook.getIsDeleted());
 
-// Verify the expected values in the response book
-        assertEquals(book.getName(), responseBook.getName());
-        assertEquals(book.getAuthor(), responseBook.getAuthor());
-        assertEquals(book.getCategory(), responseBook.getCategory());
-        assertEquals(book.getIsbn(), responseBook.getIsbn());
-        assertEquals(false, responseBook.getIsDeleted());
+        verify(libraryContract).addBook(Mockito.eq("example Book"), Mockito.eq("John Doe"), Mockito.eq("Fiction"), Mockito.eq(false));
     }
+
 
     @Test
     void testGetAllBooks() throws Exception {
-// Mock the result of getAllBooksFunction.send()
-        List<LibraryContract.Book> mockedResult = new ArrayList<>();
-        LibraryContract.Book book1 = new LibraryContract.Book(BigInteger.valueOf(1), "Book 1", "Author 1", "Category 1", "ISBN 1", false);
-        mockedResult.add(book1);
 
-// Mock libraryContract.getAllBooks() to return getAllBooksFunction
-        RemoteFunctionCall<List> getAllBooksFunction = Mockito.mock(RemoteFunctionCall.class);
+        List<LibraryContract_updated.Book> contractBooks = new ArrayList<>();
+        BigInteger bookId = BigInteger.valueOf(1);
+        String bookName = "Book 1";
+        String bookAuthor = "Author 1";
+        String bookCategory = "Category 1";
+        boolean isDeleted = false;
+
+        LibraryContract_updated.Book book = new LibraryContract_updated.Book(
+                bookId, bookName, bookAuthor, bookCategory, isDeleted
+        );
+        contractBooks.add(book);
+
+        RemoteFunctionCall getAllBooksFunction = mock(RemoteFunctionCall.class);
         when(libraryContract.getAllBooks()).thenReturn(getAllBooksFunction);
+        when(getAllBooksFunction.send()).thenReturn(contractBooks);
 
-// Mock getAllBooksFunction.send() to return the mockedResult
-        when(getAllBooksFunction.send()).thenReturn(mockedResult);
 
-        List<Book> books = bookService.getAllBooks();
+        List<Book> result = bookService.getAllBooks();
 
-// Verify that libraryContract.getAllBooks() is called
-        Mockito.verify(libraryContract).getAllBooks();
+        assertEquals(1, result.size());
 
-// Verify that getAllBooksFunction.send() is called
-        Mockito.verify(getAllBooksFunction).send();
-
-// Verify the expected books are returned
-        assertEquals(1, books.size());
-        Book expectedBook = new Book(BigInteger.valueOf(1), "Book 1", "Author 1", "Category 1", "ISBN 1", false);
-        assertEquals(expectedBook.toString(), books.get(0).toString());
+        Book retrievedBook = result.get(0);
+        assertEquals(bookId, retrievedBook.getId());
+        assertEquals(bookName, retrievedBook.getName());
+        assertEquals(bookAuthor, retrievedBook.getAuthor());
+        assertEquals(bookCategory, retrievedBook.getCategory());
+        assertEquals(isDeleted, retrievedBook.getIsDeleted());
     }
 
     @Test
@@ -132,11 +121,10 @@ class BookServiceImplTest {
         String name = "The Book";
         String author = "John Doe";
         String category = "Fiction";
-        String isbn = "1234567890";
         boolean isDeleted = false;
 
-        RemoteFunctionCall<LibraryContract.Book> getBookCall = mock(RemoteFunctionCall.class);
-        LibraryContract.Book bookData = new LibraryContract.Book(id, name, author, category, isbn, isDeleted);
+        RemoteFunctionCall<LibraryContract_updated.Book> getBookCall = mock(RemoteFunctionCall.class);
+        LibraryContract_updated.Book bookData = new LibraryContract_updated.Book(id, name, author, category, isDeleted);
         when(getBookCall.send()).thenReturn(bookData);
 
         when(libraryContract.getBookByName("The Book")).thenReturn(getBookCall);
@@ -147,70 +135,53 @@ class BookServiceImplTest {
         assertEquals(name, result.getName());
         assertEquals(author, result.getAuthor());
         assertEquals(category, result.getCategory());
-        assertEquals(isbn, result.getIsbn());
         assertEquals(isDeleted, result.getIsDeleted());
     }
 
+
     @Test
-    public void testUpdateBook() throws Exception {
+    void testUpdateBook() throws Exception {
 
-        TransactionReceipt transactionReceipt = mock(TransactionReceipt.class);
-// Create a mock event object with the required values
-        LibraryContract.BookUpdatedEventResponse bookUpdatedEventResponseMock = Mockito.mock(LibraryContract.BookUpdatedEventResponse.class);
-        bookUpdatedEventResponseMock.id = BigInteger.valueOf(123);
-        bookUpdatedEventResponseMock.name = "Book Name";
-        bookUpdatedEventResponseMock.author = "Author";
-        bookUpdatedEventResponseMock.category = "Category";
-        bookUpdatedEventResponseMock.isbn = "ISBN";
-        bookUpdatedEventResponseMock.isDeleted = false;
-
-// Create a list with the mock event object
-        List<LibraryContract.BookUpdatedEventResponse> bookUpdatedEventList = new ArrayList<>();
-        bookUpdatedEventList.add(bookUpdatedEventResponseMock);
-// Configure the getBookUpdatedEvents method to return the mock event list
-        Mockito.when(LibraryContract.getBookUpdatedEvents(transactionReceipt))
-                .thenReturn(bookUpdatedEventList);
-
-
-// Mock the necessary function calls
-        RemoteFunctionCall<TransactionReceipt> updateBookFunctionMock = mock(RemoteFunctionCall.class);
-        when(updateBookFunctionMock.send()).thenReturn(transactionReceipt);
-
-        when(libraryContract.updateBook(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(updateBookFunctionMock);
-
-
-
-// Create a sample Book object to pass to the function
+        BigInteger id = BigInteger.valueOf(1);
         Book book = new Book();
-        book.setName("Book Name");
-        book.setAuthor("Author");
-        book.setCategory("Category");
+        book.setName("Updated Book");
+        book.setAuthor("John Doe");
+        book.setCategory("Fiction");
 
-// Call the function
-        Book responseBook = bookService.updateBook(BigInteger.valueOf(123), book);
+        RemoteFunctionCall<TransactionReceipt> updateBookFunction = mock(RemoteFunctionCall.class);
+        TransactionReceipt transactionReceipt = mock(TransactionReceipt.class);
+        when(libraryContract.updateBook(any(), anyString(),anyString(),anyString())).thenReturn(updateBookFunction);
+        when(updateBookFunction.send()).thenReturn(transactionReceipt);
 
-// Assert the expected values
-        assertEquals(BigInteger.valueOf(123), responseBook.getId());
-        assertEquals("Book Name", responseBook.getName());
-        assertEquals("Author", responseBook.getAuthor());
-        assertEquals("Category", responseBook.getCategory());
-        assertEquals("ISBN", responseBook.getIsbn());
-        assertFalse(responseBook.getIsDeleted());
+        List<LibraryContract_updated.BookUpdatedEventResponse> bookUpdatedEvents = new ArrayList<>();
+
+        LibraryContract_updated.BookUpdatedEventResponse bookUpdatedEventResponse = mock(LibraryContract_updated.BookUpdatedEventResponse.class);
+        bookUpdatedEventResponse.id=id;
+        bookUpdatedEventResponse.name=book.getName();
+        bookUpdatedEventResponse.author=book.getAuthor();
+        bookUpdatedEventResponse.category=book.getCategory();
+        bookUpdatedEventResponse.isDeleted=false;
+
+        when(LibraryContract_updated.getBookUpdatedEvents(transactionReceipt)).thenReturn(bookUpdatedEvents);
+        bookUpdatedEvents.add(bookUpdatedEventResponse);
+
+
+        Book updatedBook = bookService.updateBook(id, book);
+
+        assertEquals(id, updatedBook.getId());
+        assertEquals("Updated Book", updatedBook.getName());
+        assertEquals("John Doe", updatedBook.getAuthor());
+        assertEquals("Fiction", updatedBook.getCategory());
     }
 
     @Test
-    void testDeleteBook_BookCanBeDeleted() throws Exception {
-// Mock the result of deleteBook function call
+    void testDeleteBook() throws Exception {
         RemoteFunctionCall<TransactionReceipt> deleteBookFunction = mock(RemoteFunctionCall.class);
         TransactionReceipt transactionReceipt = mock(TransactionReceipt.class);
         when(deleteBookFunction.send()).thenReturn(transactionReceipt);
         when(libraryContract.deleteBook(BigInteger.valueOf(1))).thenReturn(deleteBookFunction);
 
-// Call the deleteBook method
         assertDoesNotThrow(() -> bookService.deleteBook(BigInteger.valueOf(1)));
-
-// Verify that deleteBookFunction.send() was called
         verify(deleteBookFunction, times(1)).send();
     }
 

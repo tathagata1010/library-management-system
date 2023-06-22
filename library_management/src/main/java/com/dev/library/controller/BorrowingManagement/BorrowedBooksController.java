@@ -27,7 +27,7 @@ public class BorrowedBooksController {
 
     private final BorrowedBooksServiceImpl borrowedBooksServiceImpl;
 
-    public BorrowedBooksController( BorrowedBooksServiceImpl borrowedBooksServiceImpl) {
+    public BorrowedBooksController(BorrowedBooksServiceImpl borrowedBooksServiceImpl) {
         this.borrowedBooksServiceImpl = borrowedBooksServiceImpl;
     }
 
@@ -81,36 +81,6 @@ public class BorrowedBooksController {
     }
 
 
-//    @GetMapping("/{bookId}/borrowed")
-//    @Tag(name = "Borrowed Controller")
-//    @Operation(summary = "Get book record by borrowed book Id")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "Return the book record  by the specified record ID",
-//                    content = {
-//                            @Content(mediaType = "application/json",
-//                                    schema = @Schema(implementation = BorrowedBooks.class),
-//                                    examples = @ExampleObject(
-//                                            name = "Book Report",
-//                                            value = "{\n" +
-//                                                    "    \"returnDate\": \"2023-05-14\",\n" +
-//                                                    "    \"borrowerPhone\": \"1234567890\",\n" +
-//                                                    "    \"borrowerName\": \"John Smith\",\n" +
-//                                                    "    \"issueDate\": \"2023-05-14\",\n" +
-//                                                    "    \"bookName\": \"System Design\"\n" +
-//                                                    "}"
-//                                    )
-//                            )
-//                    }
-//            ),
-//            @ApiResponse(responseCode = "404", description = "Book not found", content = @Content),
-//            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
-//    })
-//    public ResponseEntity<List<BookBorrowResponse>> getBookReportByBookId(@PathVariable Long bookId) throws BorrowedNotFoundException {
-//        List<BookBorrowResponse> bookReport = borrowedBooksServiceImpl.getBorrowedBooksByBookId(bookId);
-//        return ResponseEntity.ok().body(bookReport);
-//    }
-
-
     @PostMapping("/{bookId}/borrowed")
     @Tag(name = "Borrowed Controller")
     @Operation(summary = "Add new book borrow in to the record")
@@ -137,8 +107,8 @@ public class BorrowedBooksController {
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content
             )
     })
-    public ResponseEntity<BookBorrowResponse> addBookReport(@PathVariable BigInteger bookId, @RequestBody BookBorrowRequest bookBorrowRequest) throws Exception {
-        BookBorrowResponse newBookReport = borrowedBooksServiceImpl.addBookBorrow(bookId,bookBorrowRequest);
+    public ResponseEntity<BookBorrowResponse> addBookReport(@PathVariable BigInteger bookId, @RequestBody BookBorrowRequest bookBorrowRequest) {
+        BookBorrowResponse newBookReport = borrowedBooksServiceImpl.addBookBorrow(bookId, bookBorrowRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(newBookReport);
     }
 
@@ -164,8 +134,8 @@ public class BorrowedBooksController {
             @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content),
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
-    public ResponseEntity<BookBorrowResponse> updateBookReport(@PathVariable BigInteger bookId,@PathVariable BigInteger borrowedId,@RequestBody UpdateBookBorrowRequest updateBookBorrowRequest) throws BorrowedNotFoundException {
-        BookBorrowResponse updatedBookReport = borrowedBooksServiceImpl.updateBorrowed(bookId,borrowedId, updateBookBorrowRequest);
+    public ResponseEntity<BookBorrowResponse> updateBookReport(@PathVariable BigInteger bookId, @PathVariable BigInteger borrowedId, @RequestBody UpdateBookBorrowRequest updateBookBorrowRequest) throws BorrowedNotFoundException {
+        BookBorrowResponse updatedBookReport = borrowedBooksServiceImpl.updateBorrowed(bookId, borrowedId, updateBookBorrowRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(updatedBookReport);
     }
 
