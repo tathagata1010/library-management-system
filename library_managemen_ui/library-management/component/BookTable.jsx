@@ -218,6 +218,8 @@ const BookTable = () => {
       console.log("Librarian Signature:", librarianSignature);
       console.log("Librarian Address:", librarianAddress);
 
+      // window.open("http://localhost:3001", "_blank");
+
       const selectedBorrowerAccount = await ethereum.request({
         method: "wallet_requestPermissions",
         params: [
@@ -364,7 +366,8 @@ const BookTable = () => {
         .catch((error) => {
           console.log(error);
           setDeleteError(error.response.data.errorMessage);
-        }).finally(() => {
+        })
+        .finally(() => {
           setIsLoading(false);
         });
     }

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.19;
 
 
 contract LibraryContract_updated {
@@ -160,7 +160,7 @@ contract LibraryContract_updated {
         require(canDelete, "Book cannot be deleted");
 
         books[id].isDeleted = true;
-        bookByName[books[id].name].isDeleted = books[id];
+        bookByName[books[id].name] = books[id];
 
     }
 

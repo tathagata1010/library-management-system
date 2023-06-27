@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '2.7.11'
+	id 'org.springframework.boot' version '2.7.12'
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 	id "org.web3j" version "4.9.8"
 }
@@ -14,7 +14,7 @@ repositories {
 }
 
 solidity {
-	executable = './src/main/resources/solc-windows.exe'	// Path to Solc Compiler file
+	executable = './src/main/resources/solc-windows.exe'
 	version = '0.8.19'
 }
 
