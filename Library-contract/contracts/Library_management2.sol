@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.19;
 
 contract LibraryContract_updated {
     address private owner;
@@ -12,8 +12,6 @@ contract LibraryContract_updated {
     mapping(uint256 => mapping(address => bool)) private bookBorrowers;
 
     mapping(string => Book) private bookByName;
-
-    mapping(uint256 => bool) private isBorrowed;
 
     modifier onlyOwner() {
         require(
@@ -39,6 +37,7 @@ contract LibraryContract_updated {
     struct BorrowedBook {
         uint256 id;
         uint256 bookId;
+        string borrowerName;
         string bookName;
         address borrowerAddress;
         uint256 issueDate;
@@ -68,6 +67,7 @@ contract LibraryContract_updated {
     event BookBorrowed(
         uint256 indexed borrowedBookId,
         uint256 bookId,
+        string borrowerName,
         string bookName,
         address indexed borrower,
         uint256 issueDate,
@@ -77,6 +77,7 @@ contract LibraryContract_updated {
     event BookReturned(
         uint256 indexed borrowedBookId,
         string bookName,
+        string borrowerName,
         address borrowerAddress,
         string borrowerPhoneNumber,
         uint256 issueDate,
@@ -86,6 +87,7 @@ contract LibraryContract_updated {
     event BookLost(
         uint256 indexed borrowedBookId,
         string bookName,
+        string borrowerName,
         address borrowerAddress,
         string borrowerPhoneNumber,
         uint256 issueDate,
@@ -93,13 +95,15 @@ contract LibraryContract_updated {
     );
 
     function addBook(
-        string memory _name,
-        string memory author,
-        string memory category,
+        string calldata _name,
+        string calldata author,
+        string calldata category,
         bool isDeleted
     ) external onlyOwner {
         require(
-            keccak256(bytes(bookByName[_name].name)) != keccak256(bytes(_name)),
+            keccak256(bytes(bookByName[_name].name)) !=
+                keccak256(bytes(_name)) &&
+                !bookByName[_name].isDeleted,
             "Another book with the same name already exists"
         );
         uint256 id = books.length;
@@ -111,8 +115,8 @@ contract LibraryContract_updated {
     function updateBook(
         uint256 _id,
         string calldata name,
-        string memory author,
-        string memory category
+        string calldata author,
+        string calldata category
     ) external onlyOwner {
         require(_id < books.length, "Invalid book ID");
         require(
@@ -140,7 +144,7 @@ contract LibraryContract_updated {
     }
 
     function getBookByName(
-        string memory _name
+        string calldata _name
     ) external view returns (Book memory) {
         require(
             !bookByName[_name].isDeleted,
@@ -156,14 +160,36 @@ contract LibraryContract_updated {
 
     function deleteBook(uint256 id) public onlyOwner {
         require(id < books.length, "Invalid book ID");
-        require(!isBorrowed[id], "Book is currently borrowed");
+        bool canDelete = true;
+        uint256 borrowerCount = 0;
+        uint256 lostOrReturnedCount = 0;
+
+        for (uint256 i = 0; i < borrowedBooks.length; i++) {
+            if (borrowedBooks[i].bookId == id) {
+                borrowerCount++;
+                if (
+                    !borrowedBooks[i].isLost && borrowedBooks[i].returnDate == 0
+                ) {
+                    canDelete = false;
+                    break;
+                } else {
+                    lostOrReturnedCount++;
+                }
+            }
+        }
+
+        canDelete = canDelete && (borrowerCount == lostOrReturnedCount);
+
+        require(canDelete, "Book cannot be deleted");
+
         books[id].isDeleted = true;
         bookByName[books[id].name] = books[id];
     }
 
     function borrowBook(
         uint256 bookId,
-        string memory borrowerPhoneNumber,
+        string calldata borrowerName,
+        string calldata borrowerPhoneNumber,
         address borrowerAddress,
         uint256 issueDate
     ) public {
@@ -180,6 +206,7 @@ contract LibraryContract_updated {
             BorrowedBook(
                 borrowedBookId,
                 bookId,
+                borrowerName,
                 books[bookId].name,
                 borrowerAddress,
                 issueDate,
@@ -189,13 +216,12 @@ contract LibraryContract_updated {
             )
         );
 
-        isBorrowed[bookId] = true;
-
         bookBorrowers[bookId][borrowerAddress] = true;
 
         emit BookBorrowed(
             borrowedBookId,
             bookId,
+            borrowerName,
             books[bookId].name,
             borrowerAddress,
             issueDate,
@@ -203,7 +229,11 @@ contract LibraryContract_updated {
         );
     }
 
-    function returnBook(uint256 borrowedBookId, uint256 returnDate) public {
+    function returnBook(
+        uint256 borrowedBookId,
+        uint256 returnDate,
+        address _borrowerAddress
+    ) public {
         require(
             borrowedBookId < borrowedBooks.length,
             "Invalid borrowed book ID"
@@ -211,11 +241,12 @@ contract LibraryContract_updated {
 
         BorrowedBook storage borrowedBook = borrowedBooks[borrowedBookId];
 
-        //        require(borrowerAddress==borrowedBook.borrowerAddress,"Book not borrowed from this address");
+        require(
+            _borrowerAddress == borrowedBook.borrowerAddress,
+            "Book not borrowed from this address"
+        );
 
         borrowedBook.returnDate = returnDate;
-
-        isBorrowed[borrowedBook.bookId] = false;
 
         bookBorrowers[borrowedBook.bookId][
             borrowedBook.borrowerAddress
@@ -224,6 +255,7 @@ contract LibraryContract_updated {
         emit BookReturned(
             borrowedBookId,
             borrowedBook.bookName,
+            borrowedBook.borrowerName,
             borrowedBook.borrowerAddress,
             borrowedBook.borrowerPhoneNumber,
             borrowedBook.issueDate,
@@ -231,7 +263,10 @@ contract LibraryContract_updated {
         );
     }
 
-    function reportLost(uint256 borrowedBookId) public {
+    function reportLost(
+        uint256 borrowedBookId,
+        address _borrowerAddress
+    ) public {
         require(
             borrowedBookId < borrowedBooks.length,
             "Invalid borrowed book ID"
@@ -239,11 +274,21 @@ contract LibraryContract_updated {
 
         BorrowedBook storage borrowedBook = borrowedBooks[borrowedBookId];
 
+        require(
+            _borrowerAddress == borrowedBook.borrowerAddress,
+            "Book not borrowed from this address"
+        );
+
         borrowedBook.isLost = true;
+
+        bookBorrowers[borrowedBook.bookId][
+            borrowedBook.borrowerAddress
+        ] = false;
 
         emit BookLost(
             borrowedBookId,
             borrowedBook.bookName,
+            borrowedBook.borrowerName,
             borrowedBook.borrowerAddress,
             borrowedBook.borrowerPhoneNumber,
             borrowedBook.issueDate,

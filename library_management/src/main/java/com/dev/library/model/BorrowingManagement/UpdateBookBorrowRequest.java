@@ -9,7 +9,6 @@ public class UpdateBookBorrowRequest {
 
     private String borrowerAddress;
 
-
     public LocalDate getReturnDate() {
         return returnDate;
     }

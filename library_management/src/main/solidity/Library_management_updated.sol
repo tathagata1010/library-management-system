@@ -69,7 +69,6 @@ contract LibraryContract_updated {
         bool isLost;
 
         string borrowerPhoneNumber;
-
     }
 
 
@@ -211,6 +210,7 @@ contract LibraryContract_updated {
 
         borrowedBook.isLost = true;
 
+        bookBorrowers[borrowedBook.bookId][borrowedBook.borrowerAddress] = false;
 
         emit BookLost(borrowedBookId, borrowedBook.bookName, borrowedBook.borrowerName, borrowedBook.borrowerAddress, borrowedBook.borrowerPhoneNumber, borrowedBook.issueDate, true);
 

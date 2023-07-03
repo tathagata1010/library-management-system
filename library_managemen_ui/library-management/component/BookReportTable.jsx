@@ -2,6 +2,14 @@ import { useEffect, useState } from "react";
 import styles from "../styles/BookReportTable.module.css";
 import { myAxios } from "../lib/create-axios";
 import Modal from "react-modal";
+import {
+  useAccount,
+  useConnect,
+  useSignMessage,
+  useDisconnect,
+  sepolia,
+} from "wagmi";
+import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 const moment = require("moment");
 
 const BookReportTable = () => {
@@ -10,15 +18,21 @@ const BookReportTable = () => {
   const [lostModalOpen, setLostModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+
   const [selectedReport, setSelectedReport] = useState(null);
   const [selectedReportId, setSelectedReportId] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [returnDateSelect, setReturnDateSelect] = useState(Date);
   const [modalContent, setModalContent] = useState(null);
   const [formData, setFormData] = useState({ returnDate: "" });
+  const { connectAsync } = useConnect();
+  const { disconnectAsync } = useDisconnect();
+  const { address, isConnected } = useAccount();
+
+  const { data, signMessageAsync } = useSignMessage();
 
   useEffect(() => {
-    setIsLoading(false);
+   
     myAxios
       .get(`${process.env.NEXT_PUBLIC_ALL_BOOKS_RECORD_URI}`)
       .then((response) => {
@@ -44,27 +58,30 @@ const BookReportTable = () => {
     if (isLoading) return;
 
     setIsLoading(true);
-    
+
     try {
-      const selectedBorrowerAccount = await ethereum.request({
-        method: "wallet_requestPermissions",
-        params: [
-          {
-            eth_accounts: {},
+      if (isConnected) {
+        console.log(isConnected);
+        await disconnectAsync();
+      }
+
+      const { account } = await connectAsync({
+        connector: new WalletConnectConnector({
+          chains: [sepolia],
+          options: {
+            qrcode: true,
+            projectId: "148d4205eff1740aa9f73b236d70ca2d",
           },
-        ],
+        }),
       });
-      const borrowerAccounts = await ethereum.request({
-        method: "eth_requestAccounts",
-      });
-      const borrowerAddress = borrowerAccounts[0]; // Get the first account from the borrowerAccounts array
-      const borrowerMessage = "Sign as borrower to report the book as lost";
-      const borrowerSignature = await ethereum.request({
-        method: "personal_sign",
-        params: [borrowerMessage, borrowerAddress],
-      });
-      console.log("Borrower Signature:", borrowerSignature);
+
+      const borrowerAddress = account;
+      const borrowerMessage = "Sign as borrower to report the book lost";
+      const data = await signMessageAsync({ message: borrowerMessage });
+
+      console.log("Borrower signature:  ", data);
       console.log("Borrower Address:", borrowerAddress);
+      await disconnectAsync();
 
       const selectedLibrarianAccount = await ethereum.request({
         method: "wallet_requestPermissions",
@@ -77,7 +94,7 @@ const BookReportTable = () => {
       const librarianAccounts = await ethereum.request({
         method: "eth_requestAccounts",
       });
-      const librarianAddress = librarianAccounts[0]; // Get the first account from the librarianAccounts array
+      const librarianAddress = librarianAccounts[0];
       const librarianMessage = "Sign as librarian to mark the book lost";
       const librarianSignature = await ethereum.request({
         method: "personal_sign",
@@ -144,25 +161,27 @@ const BookReportTable = () => {
     ).replace("{borrowedid}", selectedReport.id);
 
     try {
-      const selectedBorrowerAccount = await ethereum.request({
-        method: "wallet_requestPermissions",
-        params: [
-          {
-            eth_accounts: {},
+      if (isConnected) {
+        console.log(isConnected);
+        await disconnectAsync();
+      }
+
+      const { account } = await connectAsync({
+        connector: new WalletConnectConnector({
+          chains: [sepolia],
+          options: {
+            qrcode: true,
+            projectId: "148d4205eff1740aa9f73b236d70ca2d",
           },
-        ],
+        }),
       });
-      const borrowerAccounts = await ethereum.request({
-        method: "eth_requestAccounts",
-      });
-      const borrowerAddress = borrowerAccounts[0];
-      const borrowerMessage = "Sign as borrower to report the book return";
-      const borrowerSignature = await ethereum.request({
-        method: "personal_sign",
-        params: [borrowerMessage, borrowerAddress],
-      });
-      console.log("Borrower Signature:", borrowerSignature);
+
+      const borrowerAddress = account; // Get the first account from the borrowerAccounts array
+      const borrowerMessage = "Sign as borrower to return the book";
+      const data = await signMessageAsync({ message: borrowerMessage });
+      console.log("Borrower signature:  ", data);
       console.log("Borrower Address:", borrowerAddress);
+      await disconnectAsync();
 
       const selectedLibrarianAccount = await ethereum.request({
         method: "wallet_requestPermissions",
@@ -315,7 +334,6 @@ const BookReportTable = () => {
           ))}
         </tbody>
       </table>
-      {/* {console.log(selectedReport)} */}
       <Modal
         isOpen={showModal}
         onRequestClose={handleCloseModal}

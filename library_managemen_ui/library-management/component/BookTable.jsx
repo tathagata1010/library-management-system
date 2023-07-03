@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import styles from "../styles/BookTable.module.css";
 import BookReportTable from "./BookReportTable";
+import {
+  useAccount,
+  useConnect,
+  useSignMessage,
+  useDisconnect,
+  sepolia,
+} from "wagmi";
+import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 import { useContextState } from "../context/ContextState";
 import { myAxios } from "../lib/create-axios";
 import Modal from "react-modal";
@@ -18,6 +26,11 @@ const BookTable = () => {
   const [deleteBookId, setDeleteBookId] = useState(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteBook, setDeleteBook] = useState(null);
+  const { connectAsync } = useConnect();
+  const { disconnectAsync } = useDisconnect();
+  const { address, isConnected } = useAccount();
+
+  const { data, signMessageAsync } = useSignMessage();
 
   const [formData, setFormData] = useState({
     isbn: "",
@@ -33,6 +46,7 @@ const BookTable = () => {
     bookId: "",
   });
   useEffect(() => {
+    disconnectAsync();
     setIsLoading(false);
     myAxios
       .get("/books")
@@ -131,73 +145,17 @@ const BookTable = () => {
     setEditBook(null);
   };
 
-  // const handleView = async (book) => {
-  //   try {
-  //     const response = await myAxios.get(`/books/${book.id}/borrowed`);
-  //     const borrowers = response.data;
-  //     console.log(borrowers);
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
-
-  // const handleIssueFormSubmit = async (event) => {
-  //   event.preventDefault();
-  //   console.log(issueFormData.issueDate);
-
-  //   try {
-  //     const accounts = await ethereum.request({
-  //       method: "eth_requestAccounts",
-  //     });
-  //     const message = "Sign to issue the book";
-  //     const signature = await ethereum.request({
-  //       method: "personal_sign",
-  //       params: [message, accounts[0]],
-  //     });
-
-  //     console.log("Signature:", signature);
-
-  //     console.log("Signer Address:", ethereum.selectedAddress);
-
-  //     const issueBookData = {
-  //       issueDate: issueFormData.issueDate,
-  //       borrowerName: issueFormData.borrowerName,
-  //       walletAddress: ethereum.selectedAddress,
-  //       borrowerPhone: issueFormData.borrowerPhone,
-  //       bookId: issueFormData.bookId,
-  //     };
-
-  //     const issueBookURI = process.env.NEXT_PUBLIC_BOOK_ISSUE_URI.replace(
-  //       "{issueBookData.bookId}",
-  //       issueBookData.bookId
-  //     );
-
-  //     myAxios
-  //       .post(issueBookURI, issueBookData)
-  //       .then((response) => {
-  //         setIsIssue(false);
-  //       })
-  //       .catch((error) => {
-  //         const errorCode = error.response.data.errorCode;
-  //         const errorMessage = error.response.data.errorMessage;
-  //         setModalContent(
-  //           <div className={styles.error}>
-  //             <p>
-  //               {errorCode}: {errorMessage}
-  //             </p>
-  //           </div>
-  //         );
-  //       });
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
-
   const handleIssueFormSubmit = async (event) => {
     event.preventDefault();
+    await disconnectAsync();
     if (isLoading) return;
     setIsLoading(true);
     try {
+      if (isConnected) {
+        console.log(isConnected);
+        await disconnectAsync();
+      }
+
       const selectedLibrarianAccount = await ethereum.request({
         method: "wallet_requestPermissions",
         params: [
@@ -209,7 +167,7 @@ const BookTable = () => {
       const librarianAccounts = await ethereum.request({
         method: "eth_requestAccounts",
       });
-      const librarianAddress = librarianAccounts[0]; // Get the first account from the librarianAccounts array
+      const librarianAddress = librarianAccounts[0];
       const librarianMessage = "Sign as librarian to issue the book";
       const librarianSignature = await ethereum.request({
         method: "personal_sign",
@@ -218,32 +176,30 @@ const BookTable = () => {
       console.log("Librarian Signature:", librarianSignature);
       console.log("Librarian Address:", librarianAddress);
 
-      // window.open("http://localhost:3001", "_blank");
-
-      const selectedBorrowerAccount = await ethereum.request({
-        method: "wallet_requestPermissions",
-        params: [
-          {
-            eth_accounts: {},
+      const { account } = await connectAsync({
+        connector: new WalletConnectConnector({
+          chains: [sepolia],
+          options: {
+            qrcode: true,
+            projectId: "148d4205eff1740aa9f73b236d70ca2d",
           },
-        ],
+        }),
       });
-      const borrowerAccounts = await ethereum.request({
-        method: "eth_requestAccounts",
-      });
-      const borrowerAddress = borrowerAccounts[0]; // Get the first account from the borrowerAccounts array
+      const borrowerAddress = account;
       const borrowerMessage = "Sign as borrower to borrow the book";
-      const borrowerSignature = await ethereum.request({
-        method: "personal_sign",
-        params: [borrowerMessage, borrowerAddress],
-      });
-      console.log("Borrower Signature:", borrowerSignature);
+
+      const data = await signMessageAsync({ message: borrowerMessage });
+
+      console.log("Borrower Signature:", data);
+
+      await disconnectAsync();
+
       console.log("Borrower Address:", borrowerAddress);
 
       const issueBookData = {
         issueDate: issueFormData.issueDate,
         borrowerName: issueFormData.borrowerName,
-        walletAddress: ethereum.selectedAddress,
+        walletAddress: borrowerAddress,
         borrowerPhone: issueFormData.borrowerPhone,
         bookId: issueFormData.bookId,
       };
@@ -421,12 +377,6 @@ const BookTable = () => {
               <td className={styles.tableData}>{book.author}</td>
               <td className={styles.tableData}>{book.category}</td>
               <td className={styles.actions}>
-                {/* <button
-                  className={styles.actionButton}
-                  onClick={() => handleView(book)}
-                >
-                  View
-                </button> */}
                 <button
                   className="buttonPrimary button-dimension"
                   onClick={() => handleIssue(book)}
@@ -494,17 +444,6 @@ const BookTable = () => {
               {editBook ? "Update Book Details" : "Add New Book"}
             </h2>
             <form onSubmit={handleFormSubmit} className={styles.form}>
-              {/* <label className={styles.label}>
-                ISBN:
-                <input
-                  type="text"
-                  name="isbn"
-                  value={formData.isbn}
-                  onChange={handleInputChange}
-                  required
-                  disabled={editBook ? true : false}
-                />
-              </label> */}
               <label className={styles.label}>
                 Name:
                 <input

@@ -77,8 +77,6 @@ public class BorrowedBooksServiceImpl implements BorrowedBooksService {
                     boolean isLost = borrowedBookData.isLost;
                     String borrowerPhoneNumber = CryptoUtils.decrypt(borrowedBookData.borrowerPhoneNumber);
                     String borrowerName = CryptoUtils.decrypt(borrowedBookData.borrowerName);
-//                    String borrowerPhoneNumber = borrowedBookData.borrowerPhoneNumber;
-//                    String borrowerName = borrowedBookData.borrowerName;
                     BookBorrowResponse borrowedBook = new BookBorrowResponse();
                     borrowedBook.setId(id);
                     borrowedBook.setBookName(bookName);
@@ -103,9 +101,7 @@ public class BorrowedBooksServiceImpl implements BorrowedBooksService {
             RemoteFunctionCall<TransactionReceipt> addBorrowBook = libraryContract.borrowBook(
                     bookId,
                     CryptoUtils.encrypt(bookBorrowRequest.getBorrowerName()),
-//                    bookBorrowRequest.getBorrowerName(),
                     CryptoUtils.encrypt(bookBorrowRequest.getBorrowerPhone()),
-//                    bookBorrowRequest.getBorrowerPhone(),
                     bookBorrowRequest.getWalletAddress(),
                     BigInteger.valueOf(bookBorrowRequest.getIssueDate().atStartOfDay(ZoneId.systemDefault()).toInstant().getEpochSecond())
             );
@@ -116,10 +112,8 @@ public class BorrowedBooksServiceImpl implements BorrowedBooksService {
                 borrowedBookResponse.setId(bookBorrowedEvent.borrowedBookId);
                 borrowedBookResponse.setBookName(bookBorrowedEvent.bookName);
                 borrowedBookResponse.setBorrowerName(CryptoUtils.decrypt(bookBorrowedEvent.borrowerName));
-//                borrowedBookResponse.setBorrowerName(bookBorrowedEvent.borrowerName);
                 borrowedBookResponse.setBorrowerAddress(bookBorrowedEvent.borrower);
                 borrowedBookResponse.setBorrowerPhone(CryptoUtils.decrypt(bookBorrowedEvent.borrowerPhoneNumber));
-//                borrowedBookResponse.setBorrowerPhone(bookBorrowedEvent.borrowerPhoneNumber);
                 borrowedBookResponse.setIssueDate(Instant.ofEpochMilli(1000L * bookBorrowedEvent.issueDate.intValue()).atZone(ZoneId.systemDefault()).toLocalDate());
                 borrowedBookResponse.setLost(false);
             }
@@ -146,11 +140,9 @@ public class BorrowedBooksServiceImpl implements BorrowedBooksService {
                 LibraryContract_updated.BookReturnedEventResponse bookReturnEvent = bookReturnEvents.get(0);
                 borrowedBookResponse.setId(bookReturnEvent.borrowedBookId);
                 borrowedBookResponse.setBorrowerName(CryptoUtils.decrypt(bookReturnEvent.borrowerName));
-//                borrowedBookResponse.setBorrowerName(bookReturnEvent.borrowerName);
                 borrowedBookResponse.setBookName(bookReturnEvent.bookName);
                 borrowedBookResponse.setBorrowerAddress(bookReturnEvent.borrowerAddress);
                 borrowedBookResponse.setBorrowerPhone(CryptoUtils.decrypt(bookReturnEvent.borrowerPhoneNumber));
-//                borrowedBookResponse.setBorrowerPhone(bookReturnEvent.borrowerPhoneNumber);
                 borrowedBookResponse.setIssueDate(Instant.ofEpochMilli(1000L * bookReturnEvent.issueDate.intValue()).atZone(ZoneId.systemDefault()).toLocalDate());
                 borrowedBookResponse.setReturnDate(Instant.ofEpochMilli(1000L * bookReturnEvent.returnDate.intValue()).atZone(ZoneId.systemDefault()).toLocalDate());
                 borrowedBookResponse.setLost(false);
@@ -174,11 +166,9 @@ public class BorrowedBooksServiceImpl implements BorrowedBooksService {
                 LibraryContract_updated.BookLostEventResponse bookLostEvent = bookLostEvents.get(0);
                 borrowedBookResponse.setId(bookLostEvent.borrowedBookId);
                 borrowedBookResponse.setBorrowerName(CryptoUtils.decrypt(bookLostEvent.borrowerName));
-//                borrowedBookResponse.setBorrowerName(bookLostEvent.borrowerName);
                 borrowedBookResponse.setBookName(bookLostEvent.bookName);
                 borrowedBookResponse.setBorrowerAddress(bookLostEvent.borrowerAddress);
                 borrowedBookResponse.setBorrowerPhone(CryptoUtils.decrypt(bookLostEvent.borrowerPhoneNumber));
-//                borrowedBookResponse.setBorrowerPhone(bookLostEvent.borrowerPhoneNumber);
                 borrowedBookResponse.setIssueDate(Instant.ofEpochMilli(1000L * bookLostEvent.issueDate.intValue()).atZone(ZoneId.systemDefault()).toLocalDate());
                 borrowedBookResponse.setLost(true);
             }
