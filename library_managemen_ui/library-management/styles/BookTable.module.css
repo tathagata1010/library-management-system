@@ -38,7 +38,7 @@
   padding: 0 10px;
   width: fit-content;
   /* margin-left:282%; */
-  color: black;
+  color: var(--primary-black);
 }
 
 .buttonAndSearchContainer {
@@ -51,15 +51,15 @@
   flex: 1;
   border: none;
   outline: none;
-  background-color: white;
-  color: black;
+  background-color: var(--primary-white);
+  color: var(--primary-black);
 }
 
 .searchBar button {
   border: none;
   outline: none;
-  background-color: #0077ff;
-  color: #fff;
+  background-color: var(--primary-blue);
+  color: var(--primary-white);
   padding: 0 10px;
   border-radius: 5px;
   height: 28px;
@@ -114,14 +114,14 @@
 
 .form input:disabled {
   background-color: #ddd;
-  color: #000;
+  color: var(--primary-black);
 }
 
 .form button {
-  background-color: #0070f3;
+  background-color: var(--primary-blue);
   border: none;
   border-radius: 5px;
-  color: white;
+  color: var(--primary-white);
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;

@@ -5,7 +5,7 @@ import { useContextState } from '../context/ContextState';
 import { useState } from 'react';
 
 export default function Home() {
-  const { isIssue } = useContextState();
+  // const { isIssue } = useContextState();
   const [showBookTable, setShowBookTable] = useState(true);
 
   return (

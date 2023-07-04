@@ -40,14 +40,14 @@
 
 .form input:disabled {
   background-color: #ddd;
-  color: #000;
+  color:var(--primary-black);;
 }
 
 .form button {
-  background-color: #0070f3;
+  background-color: var( --primary-blue);
   border: none;
   border-radius: 5px;
-  color: white;
+  color:var(--primary-white);;
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;

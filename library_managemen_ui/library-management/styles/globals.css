@@ -1,3 +1,15 @@
+:root {
+  --primary-black: black;
+  --primary-white: white;
+  --tertiary-button: #dc4444;
+  --tertiary-button-hover:#cb2f2f;
+  --secondary-button: rgb(231, 147, 37);
+  --secondary-button-hover:rgb(255, 147, 7);
+  --primary-blue: #0070f3;
+  --secondary-blue:blue;
+  --primary-button-hover: #0062cc;
+}
+
 html,
 body {
   padding: 0;
@@ -17,11 +29,11 @@ a {
 .heading {
   text-align: center;
   justify-self:center;
-  border-bottom: 2px solid black;
+  border-bottom: 2px solid var(--primary-black);
 }
 .active {
-  background-color: blue;
-  color: white;
+  background-color: var(--secondary-blue);
+  color: var(--primary-white);
   border: none;
   border-radius: 4px;
   padding: 8px 16px;
@@ -34,8 +46,8 @@ a {
 }
 
 .buttonPrimary {
-  background-color: #0070f3;
-  color: white;
+  background-color: var(--primary-blue);
+  color: var(--primary-white);
   border: 1px solid;
    padding: 0.5rem 1rem;
   border-radius: 4px;
@@ -48,12 +60,12 @@ margin-left: 12%;
 }
 
 .buttonPrimary:hover {
-  background-color: #0062cc;
+  background-color: var(--primary-button-hover);
 }
 
 .buttonSecondary {
-  background-color: rgb(231, 147, 37);
-  color: white;
+  background-color: var(--secondary-button);
+  color: var(--primary-white);
   border: 1px solid;
    padding: 0.5rem 1rem;
   border-radius: 4px;
@@ -62,13 +74,13 @@ margin-left: 12%;
 }
 
 .buttonSecondary:hover {
-  background-color: rgb(255, 147, 7);
+  background-color: var(--secondary-button-hover);
 }
 
 
 .buttonTertiary {
-  background-color: #dc4444;
-  color: #ffffff;
+  background-color:var(--tertiary-button);
+  color: var(--primary-white);
   border: none;
   padding: 8px 16px;
   border-radius: 5px;
@@ -77,7 +89,7 @@ margin-left: 12%;
 }
 
 .buttonTertiary:hover {
-  background-color: #cb2f2f;
+  background-color: var(--tertiary-button-hover);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -85,8 +97,8 @@ margin-left: 12%;
     color-scheme: dark;
   }
   body {
-    color: black;
-    background: white;
+    color: var(--primary-black);
+    background: var(--primary-white);
   }
   
 }
