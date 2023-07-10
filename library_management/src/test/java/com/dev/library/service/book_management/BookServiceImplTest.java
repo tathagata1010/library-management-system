@@ -1,7 +1,7 @@
-package com.dev.library.service.BookManagement;
+package com.dev.library.service.book_management;
 
 import com.dev.library.entity.Book;
-import com.dev.library.service.BookManagement.implementation.BookServiceImpl;
+import com.dev.library.service.book_management.implementation.BookServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -79,7 +79,7 @@ class BookServiceImplTest {
         assertEquals("Fiction", addedBook.getCategory());
         assertFalse(addedBook.getIsDeleted());
 
-        verify(libraryContract).addBook(Mockito.eq("example Book"), Mockito.eq("John Doe"), Mockito.eq("Fiction"), Mockito.eq(false));
+        verify(libraryContract).addBook("example Book", "John Doe", "Fiction", false);
     }
 
 

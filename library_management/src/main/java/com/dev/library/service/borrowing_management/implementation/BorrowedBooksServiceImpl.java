@@ -1,11 +1,11 @@
-package com.dev.library.service.BorrowingManagement.implementation;
+package com.dev.library.service.borrowing_management.implementation;
 
 import com.dev.library.exception.BookAlreadyIssuedException;
 import com.dev.library.exception.BorrowerNotMatch;
-import com.dev.library.model.BorrowingManagement.BookBorrowRequest;
-import com.dev.library.model.BorrowingManagement.BookBorrowResponse;
-import com.dev.library.model.BorrowingManagement.UpdateBookBorrowRequest;
-import com.dev.library.service.BorrowingManagement.BorrowedBooksService;
+import com.dev.library.model.borrowing_management.BookBorrowRequest;
+import com.dev.library.model.borrowing_management.BookBorrowResponse;
+import com.dev.library.model.borrowing_management.UpdateBookBorrowRequest;
+import com.dev.library.service.borrowing_management.BorrowedBooksService;
 import com.dev.library.utility.Constants;
 import com.dev.library.utility.CryptoUtils;
 import org.springframework.stereotype.Service;
@@ -126,7 +126,7 @@ public class BorrowedBooksServiceImpl implements BorrowedBooksService {
         return borrowedBookResponse;
     }
 
-
+     // To update the book return date and update the borrow book as returned.
     public BookBorrowResponse updateBorrowed(BigInteger bookId, BigInteger bookBorrowId, UpdateBookBorrowRequest updateBookBorrowRequest) {
         if (Boolean.TRUE.equals(updateBookBorrowRequest.isLost())) {
             return bookLost(bookBorrowId, updateBookBorrowRequest.getBorrowerAddress());

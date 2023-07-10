@@ -1,10 +1,10 @@
 package com.dev.library.controller;
 
-import com.dev.library.controller.BookManagement.BookController;
+import com.dev.library.controller.book_management.BookController;
 import com.dev.library.entity.Book;
 import com.dev.library.exception.BookCannotBeDeletedException;
 import com.dev.library.exception.BookNotFoundException;
-import com.dev.library.service.BookManagement.implementation.BookServiceImpl;
+import com.dev.library.service.book_management.implementation.BookServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

@@ -1,4 +1,4 @@
-package com.dev.library.service.BookManagement.implementation;
+package com.dev.library.service.book_management.implementation;
 
 import com.dev.library.entity.Book;
 import com.dev.library.exception.BookAlreadyExistsException;
@@ -113,6 +113,7 @@ public class BookServiceImpl {
         }
     }
 
+    // update the book details
     public Book updateBook(BigInteger id, Book book) {
 
         Book responseBook = new Book();
@@ -145,7 +146,6 @@ public class BookServiceImpl {
 
     public void deleteBook(BigInteger id) {
         try {
-            System.out.println(id);
             RemoteFunctionCall<TransactionReceipt> deleteBookFunction = libraryContract.deleteBook(id);
             deleteBookFunction.send();
         } catch (Exception e) {

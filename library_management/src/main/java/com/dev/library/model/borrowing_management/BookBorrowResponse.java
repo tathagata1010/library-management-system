@@ -1,4 +1,4 @@
-package com.dev.library.model.BorrowingManagement;
+package com.dev.library.model.borrowing_management;
 
 import java.math.BigInteger;
 import java.time.LocalDate;

@@ -32,7 +32,7 @@ const BookReportTable = () => {
   const { data, signMessageAsync } = useSignMessage();
 
   useEffect(() => {
-   
+    disconnectAsync();
     myAxios
       .get(`${process.env.NEXT_PUBLIC_ALL_BOOKS_RECORD_URI}`)
       .then((response) => {

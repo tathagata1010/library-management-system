@@ -1,4 +1,4 @@
-package com.dev.library.service.BookManagement;
+package com.dev.library.service.book_management;
 
 import com.dev.library.entity.Book;
 import com.dev.library.exception.BookAlreadyExistsException;

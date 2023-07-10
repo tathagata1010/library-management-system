@@ -1,9 +1,9 @@
-package com.dev.library.controller.BookManagement;
+package com.dev.library.controller.book_management;
 
 import com.dev.library.entity.Book;
 import com.dev.library.exception.BookCannotBeDeletedException;
 import com.dev.library.exception.BookNotFoundException;
-import com.dev.library.service.BookManagement.implementation.BookServiceImpl;
+import com.dev.library.service.book_management.implementation.BookServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;

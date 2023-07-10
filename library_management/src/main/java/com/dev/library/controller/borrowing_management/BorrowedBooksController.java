@@ -1,11 +1,11 @@
-package com.dev.library.controller.BorrowingManagement;
+package com.dev.library.controller.borrowing_management;
 
 import com.dev.library.entity.BorrowedBooks;
 import com.dev.library.exception.BorrowedNotFoundException;
-import com.dev.library.model.BorrowingManagement.BookBorrowRequest;
-import com.dev.library.model.BorrowingManagement.BookBorrowResponse;
-import com.dev.library.model.BorrowingManagement.UpdateBookBorrowRequest;
-import com.dev.library.service.BorrowingManagement.implementation.BorrowedBooksServiceImpl;
+import com.dev.library.model.borrowing_management.BookBorrowRequest;
+import com.dev.library.model.borrowing_management.BookBorrowResponse;
+import com.dev.library.model.borrowing_management.UpdateBookBorrowRequest;
+import com.dev.library.service.borrowing_management.implementation.BorrowedBooksServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -46,7 +46,7 @@ public class BorrowedBooksController {
                                                     "    {\n" +
                                                     "        \"returnDate\": \"2023-05-14\",\n" +
                                                     "        \"borrowerPhone\": \"123467890\",\n" +
-                                                    "        \"borrowerName\": \"borrwer-x\",\n" +
+                                                    "        \"borrowerName\": \"borrower-x\",\n" +
                                                     "        \"id\": 1,\n" +
                                                     "        \"issueDate\": \"2023-05-14\",\n" +
                                                     "        \"bookName\": \"book1\"\n" +
@@ -54,7 +54,7 @@ public class BorrowedBooksController {
                                                     "    {\n" +
                                                     "        \"returnDate\": \"2023-05-14\",\n" +
                                                     "        \"borrowerPhone\": \"123457890\",\n" +
-                                                    "        \"borrowerName\": \"borrwer-y\",\n" +
+                                                    "        \"borrowerName\": \"borrower-y\",\n" +
                                                     "        \"id\": 2,\n" +
                                                     "        \"issueDate\": \"2023-05-14\",\n" +
                                                     "        \"bookName\": \"book1\"\n" +
