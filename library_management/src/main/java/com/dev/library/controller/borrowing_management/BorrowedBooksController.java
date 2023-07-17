@@ -1,10 +1,10 @@
 package com.dev.library.controller.borrowing_management;
 
-import com.dev.library.entity.BorrowedBooks;
+import com.dev.library.model.BorrowedBooks;
 import com.dev.library.exception.BorrowedNotFoundException;
-import com.dev.library.model.borrowing_management.BookBorrowRequest;
-import com.dev.library.model.borrowing_management.BookBorrowResponse;
-import com.dev.library.model.borrowing_management.UpdateBookBorrowRequest;
+import com.dev.library.dto.borrowing_management.BookBorrowRequest;
+import com.dev.library.dto.borrowing_management.BookBorrowResponse;
+import com.dev.library.dto.borrowing_management.UpdateBookBorrowRequest;
 import com.dev.library.service.borrowing_management.implementation.BorrowedBooksServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,13 +19,20 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+/**
+ * @implNote Controller to handle the borrowing management functions
+ */
 @RestController
 @RequestMapping("/books")
 public class BorrowedBooksController {
 
 
     private final BorrowedBooksServiceImpl borrowedBooksServiceImpl;
+    public static final String CONTROLLER = "Borrowed Book Controller";
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     public BorrowedBooksController(BorrowedBooksServiceImpl borrowedBooksServiceImpl) {
         this.borrowedBooksServiceImpl = borrowedBooksServiceImpl;
@@ -77,6 +84,7 @@ public class BorrowedBooksController {
     })
     public ResponseEntity<List<BookBorrowResponse>> getAllBookReports() throws Exception {
         List<BookBorrowResponse> bookReports = borrowedBooksServiceImpl.getAllBooksBorrowed();
+        logger.log(Level.INFO,"{0} - Request to get all the borrowed book records",CONTROLLER);
         return ResponseEntity.ok().body(bookReports);
     }
 
@@ -109,6 +117,7 @@ public class BorrowedBooksController {
     })
     public ResponseEntity<BookBorrowResponse> addBookReport(@PathVariable BigInteger bookId, @RequestBody BookBorrowRequest bookBorrowRequest) {
         BookBorrowResponse newBookReport = borrowedBooksServiceImpl.addBookBorrow(bookId, bookBorrowRequest);
+        logger.log(Level.INFO,"{0} - Request to add a new borrowed book details of book id: {1}",new Object[]{CONTROLLER,bookId});
         return ResponseEntity.status(HttpStatus.CREATED).body(newBookReport);
     }
 
@@ -136,6 +145,7 @@ public class BorrowedBooksController {
     })
     public ResponseEntity<BookBorrowResponse> updateBookReport(@PathVariable BigInteger bookId, @PathVariable BigInteger borrowedId, @RequestBody UpdateBookBorrowRequest updateBookBorrowRequest) throws BorrowedNotFoundException {
         BookBorrowResponse updatedBookReport = borrowedBooksServiceImpl.updateBorrowed(bookId, borrowedId, updateBookBorrowRequest);
+        logger.log(Level.INFO,"{0} - Request to update the borrowed book status of borrowing Id: {1}",new Object[]{CONTROLLER,borrowedId});
         return ResponseEntity.status(HttpStatus.CREATED).body(updatedBookReport);
     }
 

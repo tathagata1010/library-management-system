@@ -1,8 +1,9 @@
 package com.dev.library.service.borrowing_management;
 
-import com.dev.library.model.borrowing_management.BookBorrowRequest;
-import com.dev.library.model.borrowing_management.BookBorrowResponse;
-import com.dev.library.model.borrowing_management.UpdateBookBorrowRequest;
+import com.dev.library.config.ApplicationProperties;
+import com.dev.library.dto.borrowing_management.BookBorrowRequest;
+import com.dev.library.dto.borrowing_management.BookBorrowResponse;
+import com.dev.library.dto.borrowing_management.UpdateBookBorrowRequest;
 import com.dev.library.service.borrowing_management.implementation.BorrowedBooksServiceImpl;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +32,8 @@ import static org.mockito.Mockito.*;
 
 class BorrowedBooksServiceImplTest {
 
+    @InjectMocks
+    ApplicationProperties applicationProperties;
     @Mock
     private LibraryContract_updated libraryContract;
 
@@ -42,7 +45,7 @@ class BorrowedBooksServiceImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         libraryContract = mock(LibraryContract_updated.class);
-        borrowedBooksService=new BorrowedBooksServiceImpl();
+        borrowedBooksService=new BorrowedBooksServiceImpl(applicationProperties);
         borrowedBooksService.setLibraryContract(libraryContract);
     }
 

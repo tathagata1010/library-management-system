@@ -1,5 +1,6 @@
 package com.dev.library.controller.web3j;
 
+import com.dev.library.config.ApplicationProperties;
 import com.dev.library.utility.Constants;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,18 +13,23 @@ import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.tx.gas.ContractGasProvider;
-import org.web3j.tx.gas.DefaultGasProvider;
 import org.web3j.tx.gas.StaticGasProvider;
 
 @RestController
 @RequestMapping("/contract")
 public class Web3jController {
 
+    private final ApplicationProperties applicationProperties;
+
+    public Web3jController(ApplicationProperties applicationProperties) {
+        this.applicationProperties = applicationProperties;
+    }
+
     @PostMapping("/deploy")
     public ResponseEntity<String> deployContract() throws Exception {
-        Web3j web3 = Web3j.build(new HttpService(Constants.RPC_URL));
+        Web3j web3 = Web3j.build(new HttpService(applicationProperties.getRpcURL()));
 
-        Credentials credentials = Credentials.create(Constants.CREDENTIAL);
+        Credentials credentials = Credentials.create(applicationProperties.getWalletCredential());
         EthBlock block = web3.ethGetBlockByNumber(
                 DefaultBlockParameterName.LATEST,
                 false

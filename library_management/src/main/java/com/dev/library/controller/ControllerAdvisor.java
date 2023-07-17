@@ -13,6 +13,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @implNote Controller Advisor to handle the error responses
+ */
 @ControllerAdvice
 public class ControllerAdvisor extends ResponseEntityExceptionHandler {
 

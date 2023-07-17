@@ -1,10 +1,12 @@
 package com.dev.library.service.book_management.implementation;
 
-import com.dev.library.entity.Book;
+import com.dev.library.config.ApplicationProperties;
+import com.dev.library.model.Book;
 import com.dev.library.exception.BookAlreadyExistsException;
 import com.dev.library.exception.BookCannotBeDeletedException;
 import com.dev.library.exception.BookNotFoundException;
 import com.dev.library.exception.NotLibrarianException;
+import com.dev.library.service.book_management.BookService;
 import com.dev.library.utility.Constants;
 import org.springframework.stereotype.Service;
 import org.web3j.crypto.Credentials;
@@ -20,26 +22,34 @@ import javax.annotation.PostConstruct;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Service
-public class BookServiceImpl {
+public class BookServiceImpl implements BookService {
 
     private LibraryContract_updated libraryContract;
+
+    private final ApplicationProperties applicationProperties;
+    public static final String SERVICE = "Book Service Impl";
     private final Logger logger = Logger.getLogger(this.getClass().getName());
+
+    public BookServiceImpl(ApplicationProperties applicationProperties) {
+        this.applicationProperties = applicationProperties;
+    }
 
     public void setLibraryContract(LibraryContract_updated libraryContract) {
         this.libraryContract = libraryContract;
     }
 
     @PostConstruct
-    public void initialize() {
+    private void initialize() {
         try {
-            Web3j web3 = Web3j.build(new HttpService(Constants.RPC_URL));
-            Credentials credentials = Credentials.create(Constants.CREDENTIAL);
+            Web3j web3 = Web3j.build(new HttpService(applicationProperties.getRpcURL()));
+            Credentials credentials = Credentials.create(applicationProperties.getWalletCredential());
 
             libraryContract = LibraryContract_updated.load(
-                    Constants.CONTRACT_ADDRESS,
+                    "0x"+applicationProperties.getContractAddress(),
                     web3,
                     credentials,
                     new DefaultGasProvider()
@@ -52,6 +62,7 @@ public class BookServiceImpl {
     }
 
 
+    // add a new book with the book details passed
     public Book addBook(Book book) throws Exception {
         Book responseBook = new Book();
         try {
@@ -75,11 +86,12 @@ public class BookServiceImpl {
             if (e.getMessage().contains("Another book with the same name already exists"))
                 throw new BookAlreadyExistsException("Book with name " + book.getName() + " already exists!");
         }
-        logger.info("Book added successfully book Id: " + responseBook.getId());
+        logger.log(Level.INFO,"{0} - Book added successfully book Id: {1}" , new Object[]{SERVICE, responseBook.getId()});
         return responseBook;
     }
 
 
+    // Fetch all the books
     public List<Book> getAllBooks() throws Exception {
         RemoteFunctionCall<List> getAllBooksFunction = libraryContract.getAllBooks();
         List result = getAllBooksFunction.send();
@@ -96,9 +108,11 @@ public class BookServiceImpl {
                 books.add(book);
             }
         }
+        logger.log(Level.INFO,"{0} - All books retrieved" , SERVICE);
         return books;
     }
 
+    //Fetch the book details by book name
     public Book getBookByName(String name) throws BookNotFoundException {
         try {
             RemoteFunctionCall<LibraryContract_updated.Book> getBookCall = libraryContract.getBookByName(name);
@@ -107,13 +121,14 @@ public class BookServiceImpl {
             String author = bookData.author;
             String category = bookData.category;
             boolean isDeleted = bookData.isDeleted;
+            logger.log(Level.INFO,"{0} - Book details retrieved of book name: {1}" , new Object[]{SERVICE, name});
             return new Book(value, name, author, category, isDeleted);
         } catch (Exception e) {
             throw new BookNotFoundException(Constants.BOOK_NOT_FOUND_NAME + name);
         }
     }
 
-    // update the book details
+    // update the book details for book id to the expected book details passed in book object
     public Book updateBook(BigInteger id, Book book) {
 
         Book responseBook = new Book();
@@ -140,10 +155,11 @@ public class BookServiceImpl {
                 throw new NotLibrarianException(Constants.ONLY_LIBRARIAN_ACCESS);
             }
         }
-        logger.info("Book details updated successfully for book Id: " + responseBook.getId());
+        logger.log(Level.INFO,"{0} - Book details updated of book id: {1}" , new Object[]{SERVICE, id});
         return responseBook;
     }
 
+    // Delete book with the id of the book passed
     public void deleteBook(BigInteger id) {
         try {
             RemoteFunctionCall<TransactionReceipt> deleteBookFunction = libraryContract.deleteBook(id);
@@ -155,6 +171,6 @@ public class BookServiceImpl {
                 throw new NotLibrarianException(Constants.ONLY_LIBRARIAN_ACCESS);
             }
         }
-        logger.info("Book deleted successfully");
+        logger.log(Level.INFO,"{0} - Book details retrieved of book name: {1}" , new Object[]{SERVICE, id});
     }
 }

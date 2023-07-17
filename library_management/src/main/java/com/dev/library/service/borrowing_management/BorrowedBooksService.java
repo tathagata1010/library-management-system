@@ -1,8 +1,8 @@
 package com.dev.library.service.borrowing_management;
 
-import com.dev.library.model.borrowing_management.BookBorrowRequest;
-import com.dev.library.model.borrowing_management.BookBorrowResponse;
-import com.dev.library.model.borrowing_management.UpdateBookBorrowRequest;
+import com.dev.library.dto.borrowing_management.BookBorrowRequest;
+import com.dev.library.dto.borrowing_management.BookBorrowResponse;
+import com.dev.library.dto.borrowing_management.UpdateBookBorrowRequest;
 
 import java.math.BigInteger;
 import java.util.List;

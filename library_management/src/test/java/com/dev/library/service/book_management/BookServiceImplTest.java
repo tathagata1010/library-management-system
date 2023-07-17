@@ -1,11 +1,12 @@
 package com.dev.library.service.book_management;
 
-import com.dev.library.entity.Book;
+import com.dev.library.config.ApplicationProperties;
+import com.dev.library.model.Book;
 import com.dev.library.service.book_management.implementation.BookServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.web3j.librarycontract_updated.LibraryContract_updated;
 import org.web3j.protocol.core.RemoteFunctionCall;
@@ -22,6 +23,9 @@ import static org.mockito.Mockito.*;
 class BookServiceImplTest {
 
 
+    @InjectMocks
+    ApplicationProperties applicationProperties;
+
     @Mock
     private LibraryContract_updated libraryContract;
 
@@ -33,7 +37,7 @@ class BookServiceImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         libraryContract = mock(LibraryContract_updated.class);
-        bookService = new BookServiceImpl();
+        bookService = new BookServiceImpl(applicationProperties);
         bookService.setLibraryContract(libraryContract);
 
     }

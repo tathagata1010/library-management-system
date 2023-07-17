@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 @Component
-public class CryptoUtils {
+public final class CryptoUtils {
     private static final String AES_SECRET_KEY = "YourSecretKey123";
 
     public static String encrypt(String plaintext) throws Exception {

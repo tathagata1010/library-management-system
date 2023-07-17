@@ -1,8 +1,8 @@
 package com.dev.library.controller.book_management;
 
-import com.dev.library.entity.Book;
 import com.dev.library.exception.BookCannotBeDeletedException;
 import com.dev.library.exception.BookNotFoundException;
+import com.dev.library.model.Book;
 import com.dev.library.service.book_management.implementation.BookServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,11 +17,19 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+/**
+ * @implNote Controller to handle the book management functions
+ */
 @RestController
 @RequestMapping("/books")
 public class BookController {
 
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
+
+    public static final String CONTROLLER = "Book Controller";
     private final BookServiceImpl bookServiceImpl;
 
     public BookController(BookServiceImpl bookServiceImpl) {
@@ -64,6 +72,7 @@ public class BookController {
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
     public ResponseEntity<List<Book>> getAllBooks() throws Exception {
+        logger.log(Level.INFO,"{0} - Get the list of books available",CONTROLLER);
         List<Book> books = bookServiceImpl.getAllBooks();
         return new ResponseEntity<>(books, HttpStatus.OK);
     }
@@ -94,6 +103,7 @@ public class BookController {
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
     public ResponseEntity<Book> getBookByName(@RequestParam(name = "name", defaultValue = "Modern Physics") String name) {
+        logger.log(Level.INFO, "{0} - Get book details of book name: {1}", new Object[]{CONTROLLER, name});
         Book book = bookServiceImpl.getBookByName(name);
         return new ResponseEntity<>(book, HttpStatus.OK);
     }
@@ -140,6 +150,7 @@ public class BookController {
                     )
             )
     ) @RequestBody Book book) throws Exception {
+        logger.log(Level.INFO, "{0} - Add new Book",CONTROLLER);
         Book bookResponse = bookServiceImpl.addBook(book);
         return new ResponseEntity<>(bookResponse, HttpStatus.OK);
     }
@@ -168,7 +179,7 @@ public class BookController {
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
     public ResponseEntity<Book> updateBook(@PathVariable BigInteger id, @RequestBody Book book) {
-
+        logger.log(Level.INFO, "{0} - Update book details of book with id: {1}", new Object[]{CONTROLLER, id});
         Book bookResponse = bookServiceImpl.updateBook(id, book);
         return new ResponseEntity<>(bookResponse, HttpStatus.OK);
 
@@ -184,6 +195,7 @@ public class BookController {
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
     public ResponseEntity<Void> deleteBook(@PathVariable BigInteger id) throws BookNotFoundException, BookCannotBeDeletedException {
+        logger.log(Level.INFO, "{0} - delete book of book with id: {1}", new Object[]{CONTROLLER, id});
         bookServiceImpl.deleteBook(id);
         return ResponseEntity.noContent().build();
     }

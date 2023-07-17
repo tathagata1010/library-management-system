@@ -486,7 +486,6 @@ const BookTable = () => {
           </Modal>
         </div>
       )}
-      ;
       {isIssue && (
         <div>
           <IssueBookModal
@@ -501,7 +500,6 @@ const BookTable = () => {
           />
         </div>
       )}
-      ;
     </div>
   );
 };

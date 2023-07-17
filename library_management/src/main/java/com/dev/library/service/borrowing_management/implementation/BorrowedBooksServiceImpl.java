@@ -1,12 +1,12 @@
 package com.dev.library.service.borrowing_management.implementation;
 
+import com.dev.library.config.ApplicationProperties;
 import com.dev.library.exception.BookAlreadyIssuedException;
 import com.dev.library.exception.BorrowerNotMatch;
-import com.dev.library.model.borrowing_management.BookBorrowRequest;
-import com.dev.library.model.borrowing_management.BookBorrowResponse;
-import com.dev.library.model.borrowing_management.UpdateBookBorrowRequest;
+import com.dev.library.dto.borrowing_management.BookBorrowRequest;
+import com.dev.library.dto.borrowing_management.BookBorrowResponse;
+import com.dev.library.dto.borrowing_management.UpdateBookBorrowRequest;
 import com.dev.library.service.borrowing_management.BorrowedBooksService;
-import com.dev.library.utility.Constants;
 import com.dev.library.utility.CryptoUtils;
 import org.springframework.stereotype.Service;
 import org.web3j.crypto.Credentials;
@@ -33,18 +33,25 @@ public class BorrowedBooksServiceImpl implements BorrowedBooksService {
     private final Logger logger = Logger.getLogger(this.getClass().getName());
     private LibraryContract_updated libraryContract;
 
+    private final ApplicationProperties applicationProperties;
+    public static final String SERVICE = "Borrowed Book Service Impl";
+
+    public BorrowedBooksServiceImpl(ApplicationProperties applicationProperties) {
+        this.applicationProperties = applicationProperties;
+    }
+
 
     public void setLibraryContract(LibraryContract_updated libraryContract) {
         this.libraryContract = libraryContract;
     }
 
     @PostConstruct
-    public void initialize() {
+    private void initialize() {
         try {
-            Web3j web3 = Web3j.build(new HttpService(Constants.RPC_URL));
-            Credentials credentials = Credentials.create(Constants.CREDENTIAL);
+            Web3j web3 = Web3j.build(new HttpService(applicationProperties.getRpcURL()));
+            Credentials credentials = Credentials.create(applicationProperties.getWalletCredential());
             libraryContract = LibraryContract_updated.load(
-                    Constants.CONTRACT_ADDRESS,
+                    "0x"+applicationProperties.getContractAddress(),
                     web3,
                     credentials,
                     new DefaultGasProvider()
@@ -55,6 +62,7 @@ public class BorrowedBooksServiceImpl implements BorrowedBooksService {
     }
 
 
+    // Fetch all the borrowed book records
     public List<BookBorrowResponse> getAllBooksBorrowed() throws Exception {
         RemoteFunctionCall<List> getAllBorrowedBooksFunction = libraryContract.getAllBorrowedBooks();
         List result = getAllBorrowedBooksFunction.send();
@@ -90,11 +98,12 @@ public class BorrowedBooksServiceImpl implements BorrowedBooksService {
                 }
             }
         }
-
+        logger.log(Level.INFO,"{0} - All borrowed books record retrieved", SERVICE);
         return borrowedBooks;
     }
 
 
+    //Add a borrowed book details
     public BookBorrowResponse addBookBorrow(BigInteger bookId, BookBorrowRequest bookBorrowRequest) {
         BookBorrowResponse borrowedBookResponse = new BookBorrowResponse();
         try {
@@ -122,7 +131,7 @@ public class BorrowedBooksServiceImpl implements BorrowedBooksService {
                 throw new BookAlreadyIssuedException("This book has already been issued to the borrower");
             }
         }
-        logger.info("Book borrowed successfully, borrowed Id: " + borrowedBookResponse.getId());
+        logger.log(Level.INFO,"{0} - Book borrowed successfully, borrowed Id: {1}", new Object[]{SERVICE, borrowedBookResponse.getId()});
         return borrowedBookResponse;
     }
 
@@ -151,7 +160,7 @@ public class BorrowedBooksServiceImpl implements BorrowedBooksService {
             if (e.getMessage().contains("Book not borrowed from this address"))
                 throw new BorrowerNotMatch("Should be returned by the same borrower");
         }
-        logger.info("Book returned successfully on :" + borrowedBookResponse.getReturnDate());
+        logger.log(Level.INFO,"{0} - Book returned successfully on : {1}", new Object[]{SERVICE,  borrowedBookResponse.getReturnDate()});
         return borrowedBookResponse;
     }
 
@@ -176,7 +185,7 @@ public class BorrowedBooksServiceImpl implements BorrowedBooksService {
             if (e.getMessage().contains("Book not borrowed from this address"))
                 throw new BorrowerNotMatch("Should be reported by the borrower");
         }
-        logger.info("Borrowed book marked as lost");
+        logger.log(Level.INFO,"{0} - Borrowed book marked as lost",SERVICE);
         return borrowedBookResponse;
     }
 

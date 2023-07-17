@@ -1,7 +1,8 @@
 package com.dev.library.controller;
 
+import com.dev.library.config.ApplicationProperties;
 import com.dev.library.controller.book_management.BookController;
-import com.dev.library.entity.Book;
+import com.dev.library.model.Book;
 import com.dev.library.exception.BookCannotBeDeletedException;
 import com.dev.library.exception.BookNotFoundException;
 import com.dev.library.service.book_management.implementation.BookServiceImpl;
@@ -30,6 +31,9 @@ import static org.mockito.Mockito.*;
     @InjectMocks
     private BookServiceImpl bookServiceImpl;
 
+     @InjectMocks
+     ApplicationProperties applicationProperties;
+
     @Mock
     LibraryContract_updated libraryContract;
 
@@ -43,7 +47,7 @@ import static org.mockito.Mockito.*;
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         libraryContract = mock(LibraryContract_updated.class);
-        bookServiceImpl = new BookServiceImpl();
+        bookServiceImpl = new BookServiceImpl(applicationProperties);
         bookServiceImpl.setLibraryContract(libraryContract);
         book = new Book();
         bookController = new BookController(bookServiceImpl);

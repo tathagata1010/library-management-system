@@ -10,3 +10,9 @@ web:
       http://localhost:3001,
       http://localhost:3002
     max-age: 3600
+
+web3j:
+  rpc-url: https://sepolia.infura.io/v3/4a560757ab1b4a1287a35c89055cc388
+  wallet-credential: ${privateKey}
+  contract-address: d799FE641b6714f18d1AFcF847ab4960D11EDe31
+
